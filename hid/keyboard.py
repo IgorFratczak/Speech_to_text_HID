@@ -1,4 +1,4 @@
-from keyboard_keys import *
+from .keyboard_keys import *
 import time
 KEYBOARD_DEVICE = "/dev/hidg1"
 
