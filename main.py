@@ -1,28 +1,19 @@
 
 import speech_recognition as sr
 import sounddevice as sd
-# Inicjalizacja rozpoznawania
+import hid.keyboard as keyboard
 r = sr.Recognizer()
-print("Słucham... ")
-# Pętla nasłuchująca mikrofonu
+print("Inicializing microphone...")
 while True:
     try:
         with sr.Microphone() as source:
-            
-            
-            # Dostosowanie do szumów otoczenia
-            r.adjust_for_ambient_noise(source, duration=0.5) #duration zmiana czasu próbkowania
-            
-            # Nagrywanie mowy użytkownika
+            r.adjust_for_ambient_noise(source, duration=0.5) 
             audio = r.listen(source)
-            
-            # Rozpoznanie mowy (Google Speech Recognition)
-            text = r.recognize_google(audio,language = "pl-PL") #language="pl-PL"
+            #TO DO: Change spech recognition to offile model
+            text = r.recognize_google(audio,language = "pl-PL") 
             text = text.lower()
-
-            print("Rozpoznano:", text)
-
+            keyboard.Keyboard.send_string(text)
     except sr.UnknownValueError:
         pass
     except sr.RequestError as e:
-        print(f"Błąd połączenia z usługą rozpoznawania: {e}")
+        print(f"Błąd połączenia z usługą rozpoznawani: {e}")
