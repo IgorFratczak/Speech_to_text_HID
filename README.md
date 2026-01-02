@@ -1,4 +1,4 @@
-# Speach_to_text_HID
+# Speech_to_text_HID
 
 ## Overview
 

@@ -5,6 +5,12 @@ import hid.keyboard as keyboard
 from evdev import InputDevice, categorize, ecodes
 import hid.keyboard as keyboard # Twoja istniejąca klasa
 
+
+devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+for device in devices:
+    print(f"Ścieżka: {device.path} | Nazwa: {device.name}")
+
+
 # Ścieżka do Twojej fizycznej klawiatury podpiętej do RPi
 # Możesz ją znaleźć wpisując w terminalu: ls /dev/input/by-id/
 dev = InputDevice('/dev/input/event0') 
