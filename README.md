@@ -144,3 +144,32 @@ Now run the Python script (go to the appropriate folder):
 > python3 test.py
 
 Install additional libraries if you need them
+
+sudo nano /etc/systemd/system/hid_project.service
+
+[Unit]
+Description=HID device
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/igor/Desktop/Talk_to_spech_HID/run_hid.sh
+Restart=always
+RestartSec=5
+User=root
+
+[Install]
+WantedBy=multi-user.target
+
+sudo systemctl daemon-reload
+sudo systemctl enable hid_project.service
+sudo systemctl restart hid_project.service
+
+wyłączenie autostartu
+sudo systemctl disable hid_project.service
+
+sprawdzenie statusu
+sudo systemctl status hid_project.service
+
+Czarna szkrzynka
+journalctl -u hid_project.service -n 50 --no-pager

@@ -16,6 +16,6 @@ if __name__ == "__main__":
                 text = text.lower()
                 Keyboard.send_string(text)
         except sr.UnknownValueError:
-            passdir
+            pass
         except sr.RequestError as e:
             print(f"Błąd połączenia z usługą rozpoznawani: {e}")
