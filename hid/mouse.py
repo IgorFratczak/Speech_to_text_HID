@@ -10,3 +10,5 @@ MOUSE_DEVICE = "/dev/hidg0"
 #     ])
 #     with open(MOUSE_DEVICE, "wb") as mouse:
 #         mouse.write(report)
+
+class Mouse:
