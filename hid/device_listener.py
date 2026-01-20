@@ -61,5 +61,11 @@ class DeviceListener:
         self.running = False
     @staticmethod
     def list_all_input_devices():
-        devices = [path in list_devices()]
+        devices = {}
+        for path in list_devices():
+            try:
+                dev = InputDevice(path)
+                devices[dev.path] = dev.name
+            except:
+                continue
         return devices
