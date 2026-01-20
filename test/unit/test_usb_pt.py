@@ -6,9 +6,10 @@ OUT_DEV = '/dev/hidg1'
 
 
 def test_usb_pt():
+    print("Available input devices:")
     print(DeviceListener.list_all_input_devices())
+    
 
 
-
-if    __name__ == "__main__":
+if __name__ == "__main__":
     test_usb_pt()
