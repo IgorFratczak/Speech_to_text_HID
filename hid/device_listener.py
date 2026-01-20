@@ -61,5 +61,5 @@ class DeviceListener:
         self.running = False
     @staticmethod
     def list_all_input_devices():
-        devices = [InputDevice(path) for path in list_devices()]
+        devices = [path in list_devices()]
         return devices
