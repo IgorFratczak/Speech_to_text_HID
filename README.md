@@ -173,3 +173,10 @@ sudo systemctl status hid_project.service
 
 Czarna szkrzynka
 journalctl -u hid_project.service -n 50 --no-pager
+
+Zatrzymanie programu autostartu
+sudo systemctl stop hid_project.service
+sudo pkill -9 python3
+
+Sprawdzenie aktualne programy
+ps aux | grep python

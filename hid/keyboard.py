@@ -2,7 +2,7 @@ from .keyboard_keys import *
 import time
 from evdev import InputDevice, ecodes
 KEYBOARD_DEVICE_OUT = "/dev/hidg1"
-KEYBOARD_DEVICE_IN = "/dev/input/event0"
+# KEYBOARD_DEVICE_IN = "/dev/input/event0"
 
 
 try :
@@ -13,7 +13,6 @@ except FileNotFoundError:
     print("HID keyboard device not found. Make sure the HID module is properly configured.")
 
 class Keyboard:
-
     @staticmethod
     def send_event(modifier, keycode, hold_time = 0.01):
         report = bytearray(8)
@@ -29,7 +28,7 @@ class Keyboard:
         if character in KEY_MAP:
             modifier, keycode = KEY_MAP[character]
             Keyboard.send_event(modifier, keycode, hold_time)
-
+    
     @staticmethod
     def send_string(string, hold_time = 0.01):
         for char in string:
