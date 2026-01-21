@@ -5,10 +5,14 @@ from evdev import ecodes
 import hid.usb_pt as usb_pt
 from hid.keyboard import Keyboard
 from hid.device_listener import DeviceListener
-
+import time
 OUTPUT_DEV_PATH = '/dev/hidg1' 
 listeners = []
-current_host_caps_state = False
+current_host_led_states = {
+    ecodes.LED_NUML: False,
+    ecodes.LED_CAPSL: False,
+    ecodes.LED_SCROLLL: False
+}
 def on_change(keys, modifiers):
 
     
@@ -41,13 +45,18 @@ def add_new_device(path):
             # Jeśli to nie klawiatura (np. tylko przyciski głośności), ignorujemy
             return
 
-        # 3. Jeśli przeszło test, dodajemy listenera
-        l = DeviceListener(path, on_change, remove_listener, usb_pt.EV_TO_HID, usb_pt.EV_MODIFIERS)
-        l.update_led_safe(ecodes.LED_CAPSL, current_host_caps_state)
+        try:
+            l = DeviceListener(path, on_change, remove_listener, usb_pt.EV_TO_HID, usb_pt.EV_MODIFIERS)
         
-        threading.Thread(target=l.listen_loop, daemon=True).start()
-        listeners.append(l)
-        print(f"[+] Dodano nową klawiaturę: {d.name} ({path})")
+        # Synchronizacja wszystkich trzech diod przy podpięciu
+            for led_code, state in current_host_led_states.items():
+                l.update_led_safe(led_code, state)
+        
+            threading.Thread(target=l.listen_loop, daemon=True).start()
+            listeners.append(l)
+            print(f"[+] Dodano klawiaturę i zsynchronizowano LEDy: {path}")
+        except Exception as e:
+            pass
         
     except Exception as e:
         # Często błąd występuje, gdy próbujemy otworzyć urządzenie, 
@@ -65,20 +74,45 @@ def hotplug_monitor():
 
 
 def sync_leds_from_host(listeners_list):
-    global current_host_caps_state
-    last_state = None
+    global current_host_led_states
+    last_raw_state = None
+    
     try:
+        # Otwieramy urządzenie wyjściowe (gadget)
         with open(OUTPUT_DEV_PATH, 'rb', buffering=0) as f:
+            # --- TO JEST KLUCZOWA ZMIANA ---
+            # Próbujemy odczytać stan początkowy zaraz po otwarciu
+            # Laptop często wysyła raport LED przy inicjalizacji połączenia
+            initial_report = f.read(8)
+            if initial_report:
+                raw_leds = initial_report[0]
+                current_host_led_states = {
+                    ecodes.LED_NUML: bool(raw_leds & 0x01),
+                    ecodes.LED_CAPSL: bool(raw_leds & 0x02),
+                    ecodes.LED_SCROLLL: bool(raw_leds & 0x04)
+                }
+                # Od razu aktualizujemy wszystkie podpięte klawiatury
+                for l in listeners_list:
+                    for led_code, state in current_host_led_states.items():
+                        l.update_led_safe(led_code, state)
+                last_raw_state = raw_leds
+            # -------------------------------
+
             while True:
                 report = f.read(8)
                 if report:
-                    # Bit 1 (0x02) to Caps Lock
-                    current_host_caps_state = bool(report[0] & 0x02)
-                    
-                    if current_host_caps_state != last_state:
+                    raw_leds = report[0]
+                    if raw_leds != last_raw_state:
+                        new_states = {
+                            ecodes.LED_NUML: bool(raw_leds & 0x01),
+                            ecodes.LED_CAPSL: bool(raw_leds & 0x02),
+                            ecodes.LED_SCROLLL: bool(raw_leds & 0x04)
+                        }
+                        current_host_led_states.update(new_states)
                         for l in listeners_list:
-                            l.update_led_safe(ecodes.LED_CAPSL, current_host_caps_state)
-                        last_state = current_host_caps_state
+                            for led_code, state in new_states.items():
+                                l.update_led_safe(led_code, state)
+                        last_raw_state = raw_leds
     except Exception as e:
         print(f"Błąd sync LED: {e}")
 
