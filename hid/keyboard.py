@@ -2,8 +2,6 @@ from .keyboard_keys import *
 import time
 from evdev import InputDevice, ecodes
 KEYBOARD_DEVICE_OUT = "/dev/hidg1"
-# KEYBOARD_DEVICE_IN = "/dev/input/event0"
-
 
 try :
     keyboard_path = open(KEYBOARD_DEVICE_OUT, "wb", buffering=0)
@@ -48,3 +46,12 @@ class Keyboard:
     @staticmethod
     def send_report(report):
         keyboard_path.write(report)
+    @staticmethod
+    def send_env_keys(modifier, keycodes, hold_time = 0.01):
+        report = bytearray(8)
+        report[0] = modifier
+        for i, keycode in enumerate(keycodes):
+            if i + 2 < len(report):
+                report[i + 2] = keycode
+        Keyboard.send_report(report)
+        time.sleep(hold_time)

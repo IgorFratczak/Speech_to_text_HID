@@ -1,4 +1,4 @@
-import keyboard_keys as keys
+import hid.keyboard_keys as keys
 
 EV_KEY_A = 30
 EV_KEY_B = 48
@@ -27,6 +27,11 @@ EV_KEY_X = 45
 EV_KEY_Y = 21
 EV_KEY_Z = 44
 
+EV_SPACE = 57
+EV_TAB = 15
+EV_ENTER = 28
+EV_BACKSPACE = 14
+EV_CAPS_LOCK = 58
 
 MOD_RIGHT_ALT = 100
 MOD_RIGHT_SHIFT = 54
@@ -35,6 +40,8 @@ MOD_LEFT_SHIFT = 42
 MOD_LEFT_CTRL = 29
 MOD_LEFT_ALT = 56
 
+
+
 EV_MODIFIERS = {
     MOD_LEFT_SHIFT: keys.LEFT_SHIFT,
     MOD_RIGHT_SHIFT: keys.RIGHT_SHIFT,
@@ -42,6 +49,7 @@ EV_MODIFIERS = {
     MOD_RIGHT_CTRL: keys.RIGHT_CTRL,
     MOD_LEFT_ALT: keys.LEFT_ALT,
     MOD_RIGHT_ALT: keys.RIGHT_ALT,
+
 }
 
 EV_TO_HID = {
@@ -71,4 +79,9 @@ EV_TO_HID = {
     EV_KEY_X: keys.KEY_X,
     EV_KEY_Y: keys.KEY_Y,
     EV_KEY_Z: keys.KEY_Z,
+    EV_SPACE: keys.KEY_SPACE,
+    EV_TAB: keys.KEY_TAB,
+    EV_ENTER: keys.KEY_ENTER,
+    EV_BACKSPACE: keys.KEY_BACKSPACE,
+    EV_CAPS_LOCK: keys.CAPS_LOCK,
 }
