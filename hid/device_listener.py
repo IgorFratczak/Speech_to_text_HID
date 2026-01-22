@@ -4,14 +4,14 @@ from evdev import InputDevice, ecodes, list_devices
 import hid.usb_pt as usb_pt
 
 class DeviceListener:
-    def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers):
+    def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers, debug_mode=False):
         self.in_dev_path = in_dev_path
         self.on_change_callback = on_change_callback
         self.on_disconnect_callback = on_disconnect_callback
         self.ev_to_hid = ev_to_hid
         self.ev_modifiers = ev_modifiers
+        self.debug_mode = debug_mode
         
-        # INICJALIZACJA STANÓW - to naprawia błąd AttributeError
         self.active_keys = set()
         self.active_modifiers = 0
         self.last_state = (set(), 0)
@@ -20,8 +20,8 @@ class DeviceListener:
         self.running = False
         self.lock = threading.Lock()
         self.caps_lock_active = False
-        self.num_lock_active = False    # DODANO
-        self.scroll_lock_active = False # DODANO
+        self.num_lock_active = False    
+        self.scroll_lock_active = False 
         self._sync_initial_leds()
 
     def _sync_initial_leds(self):
@@ -47,14 +47,12 @@ class DeviceListener:
             except: pass
 
     def _update_state(self, key_code, value):
-        # Modyfikatory
         if key_code in self.ev_modifiers:
             mod_val = self.ev_modifiers[key_code]
             if value >= 1: self.active_modifiers |= mod_val
             else: self.active_modifiers &= ~mod_val
             return True
 
-        # Zwykłe klawisze
         if key_code in self.ev_to_hid:
             hid_val = self.ev_to_hid[key_code]
             if value == 1: self.active_keys.add(hid_val)
@@ -63,47 +61,37 @@ class DeviceListener:
         return False
 
     def update_led_safe(self, led_code, value):
-        with self.lock: # Używamy locka, żeby dwa wątki nie pisały naraz
+        with self.lock: 
             try:
-                # Nie robimy release_device()! Piszemy przy trzymającym grabie.
                 self.dev.write(ecodes.EV_LED, led_code, 1 if value else 0)
-                self.dev.syn() # Wymuszamy synchronizację zdarzenia
+                self.dev.syn() 
             except Exception as e:
                 print(f"Błąd zapisu LED: {e}")
 
     def listen_loop(self):
-        """
-        Główna pętla nasłuchująca zdarzeń z fizycznej klawiatury.
-        """
         self.running = True
         self.grab_device()
-        print(f"[OK] Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
+        if self.debug_mode:
+            print(f"[OK] Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
         
         try:
-            # read_loop() blokuje wątek do momentu wystąpienia zdarzenia
             for event in self.dev.read_loop():
                 if not self.running:
                     break
                 
-                # REAGUJEMY TYLKO NA KLAWISZE (EV_KEY)
-                # To eliminuje pętle zwrotną (feedback loop) przy zmianie diod LED
                 if event.type == ecodes.EV_KEY:
-                    # Aktualizujemy stany klawiszy i modyfikatorów
                     if self._update_state(event.code, event.value):
-                        # Wywołujemy callback (on_change), który wyśle raport HID do laptopa
                         self._trigger_callback()
-                
-                # Zdarzenia typu EV_LED oraz EV_SYN są tutaj pomijane.
-                # Dzięki temu fizyczne mignięcie diody na klawiaturze nie powoduje 
-                # ponownego wysłania raportu klawiszy do laptopa.
 
         except Exception as e:
-            print(f"\n[!] Błąd pętli nasłuchu dla {self.in_dev_path}: {e}")
+            if self.debug_mode:
+                print(f"\n[!] Błąd pętli nasłuchu dla {self.in_dev_path}: {e}")
         
         finally:
             self.running = False
             self.release_device()
-            print(f"[*] Zatrzymano nasłuch: {self.in_dev_path}")
+            if self.debug_mode:
+                print(f"[*] Zatrzymano nasłuch: {self.in_dev_path}")
             if self.on_disconnect_callback:
                 self.on_disconnect_callback(self)
     def _trigger_callback(self):
@@ -113,7 +101,8 @@ class DeviceListener:
                 self.on_change_callback(list(current_state[0]), current_state[1])
                 self.last_state = current_state
             except Exception as e:
-                print(f"[DEBUG] Błąd w callbacku: {e}")
+                if self.debug_mode:
+                    print(f"[DEBUG] Błąd w callbacku: {e}")
 
     @staticmethod
     def list_all_keyboard_devices():
