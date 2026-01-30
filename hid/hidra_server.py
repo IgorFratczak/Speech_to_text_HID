@@ -1,6 +1,4 @@
 import asyncio
-import os
-import subprocess
 import time
 from bless import (
     BlessServer,
@@ -9,77 +7,49 @@ from bless import (
     GATTAttributePermissions
 )
 
-# UUID MUSZĄ BYĆ IDENTYCZNE JAK W ANDROIDZIE
 SERVICE_UUID = "A1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
 CHAR_UUID    = "B1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
 
-def apply_wifi(ssid, password):
-    print(f"--- PRÓBA ZMIANY WIFI NA: {ssid} ---", flush=True)
-    
-    # nmcli spróbuje się połączyć. Jeśli ma już profil o tej nazwie, nadpisze go.
-    cmd = f'sudo nmcli dev wifi connect "{ssid}" password "{password}"'
-    
-    try:
-        # Timeout 25s, aby dać czas na DHCP, ale nie zablokować skryptu na amen
-        process = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=25)
-        
-        if process.returncode == 0:
-            print(f"SUKCES: Połączono z {ssid}!", flush=True)
-            # Pobieramy nowe IP, żeby wiedzieć gdzie się połączyć przez SSH
-            ip_cmd = "hostname -I | cut -d' ' -f1"
-            new_ip = subprocess.check_output(ip_cmd, shell=True).decode().strip()
-            print(f"NOWY ADRES IP: {new_ip}", flush=True)
-        else:
-            print(f"BŁĄD: Nie udało się połączyć. Log: {process.stderr}", flush=True)
-            
-    except subprocess.TimeoutExpired:
-        print("TIMEOUT: Sieć nie odpowiedziała na czas.", flush=True)
-async def run():
-    server = BlessServer(name="Hidra-Pi")
-    loop = asyncio.get_event_loop() # Pobieramy pętlę tutaj
+class HidraConfigServer:
+    def __init__(self, debug_mode=True):
+        self.debug = debug_mode
+        self.server = BlessServer(name="Hidra-Pi")
+        self.on_model_change_callback = None
 
-    def on_write(characteristic: BlessGATTCharacteristic, value: bytearray):
-        print(f"BŁYSK! Odebrano bajty: {list(value)}", flush=True)
+    def log(self, message):
+        if self.debug:
+            print(f"[{time.strftime('%H:%M:%S')}] [BLE] {message}", flush=True)
+
+    def on_write(self, characteristic: BlessGATTCharacteristic, value: bytearray):
         try:
-            msg = value.decode("utf-8")
-            print(f"Tekst: {msg}", flush=True)
-
-            if msg.startswith("WIFI:"):
-                parts = msg.split(":")
-                if len(parts) >= 3:
-                    ssid = parts[1]
-                    password = parts[2]
-                    print(f"Zlecono zmianę WiFi na {ssid}...", flush=True)
-                    # Używamy pętli bezpośrednio, aby uruchomić funkcję w tle
-                    loop.run_in_executor(None, apply_wifi, ssid, password)
-
-            elif msg.startswith("MODEL:"):
-                model = msg.split(":")[1]
-                print(f"Zmieniam model na: {model}", flush=True)
-
+            msg = value.decode("utf-8").strip()
+            self.log(f"Odebrano: {msg}")
+            if msg.startswith("MODEL:") and self.on_model_change_callback:
+                self.on_model_change_callback(msg.split(":")[1])
         except Exception as e:
-            print(f"Błąd w on_write: {e}", flush=True)
+            print(f"Błąd zapisu: {e}")
 
-    # Reszta bez zmian
-    await server.add_new_service(SERVICE_UUID)
-    await server.add_new_characteristic(
-        SERVICE_UUID,
-        CHAR_UUID,
-        GATTCharacteristicProperties.write | GATTCharacteristicProperties.write_without_response,
-        None,
-        GATTAttributePermissions.writeable
-    )
+    async def start(self, on_model_change_callback):
+        self.on_model_change_callback = on_model_change_callback
+        await self.server.add_new_service(SERVICE_UUID)
+        
+        # Tylko Write i Write Without Response - najstabilniejsza opcja
+        await self.server.add_new_characteristic(
+            SERVICE_UUID, CHAR_UUID,
+            GATTCharacteristicProperties.write | GATTCharacteristicProperties.write_without_response,
+            None,
+            GATTAttributePermissions.writeable
+        )
 
-    server.write_request_func = on_write
-    await server.start()
-    print("SERWER HIDRA GOTOWY!", flush=True)
-    
-    while True:
-        await asyncio.sleep(1)
-if __name__ == "__main__":
-    try:
-        asyncio.run(run())
-    except KeyboardInterrupt:
-        print("\nZamykanie serwera przez użytkownika...")
-    except Exception as e:
-        print(f"Nieoczekiwany błąd: {e}")
+        self.server.write_request_func = self.on_write
+        await self.server.start()
+        if self.debug:
+            print("--- SERWER BLE AKTYWNY ---", flush=True)
+        while True:
+            await asyncio.sleep(1)
+
+def run_hidra_server(debug_mode, callback):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    server = HidraConfigServer(debug_mode=debug_mode)
+    loop.run_until_complete(server.start(callback))

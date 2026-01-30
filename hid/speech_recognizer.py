@@ -5,7 +5,7 @@ import json
 import sounddevice as sd
 import speech_recognition as sr
 from abc import ABC, abstractmethod
-
+import socket
 class SpeechRecognizer(ABC):
     @abstractmethod
     def __init__(self):
@@ -19,23 +19,29 @@ class GoogleSpeechRecognizer(SpeechRecognizer):
         self.recognizer = sr.Recognizer()
 
     def recognize_speech(self):
-        with sr.Microphone() as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=0.5) 
-            audio = self.recognizer.listen(source)
-            try:
+        try:
+            with sr.Microphone() as source:
+                # Skróć czas adjust_for_ambient_noise, żeby szybciej reagował na zmiany
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.3) 
+                audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
+                
                 text = self.recognizer.recognize_google(audio, language="pl-PL")
                 return text.lower()
-            except sr.UnknownValueError:
-                return None
-            except sr.RequestError as e:
-                print(f"Błąd połączenia z usługą rozpoznawani: {e}")
-                return None
+        except sr.UnknownValueError:
+            return None
+        except (sr.RequestError, socket.timeout, socket.gaierror): # Obsługa braku sieci
+            print(">>> BŁĄD SIECI: Google nie odpowiada.")
+            raise ConnectionError("Brak internetu")
+        except Exception as e:
+            return None
 
 class VoskSpeechRecognizer(SpeechRecognizer):
     def __init__(self, model_path="model"):
-        from vosk import Model, KaldiRecognizer
+        from vosk import Model, KaldiRecognizer,SetLogLevel
+        SetLogLevel(-1)
         if not os.path.exists(model_path):
             raise FileNotFoundError("Model Vosk nie został znaleziony.")
+
         self.model = Model(model_path)
         self.recognizer = KaldiRecognizer(self.model, 16000)
         self.audio_queue = queue.Queue()
