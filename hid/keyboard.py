@@ -29,6 +29,8 @@ class Keyboard:
     
     @staticmethod
     def send_string(string, hold_time = 0.01):
+        if not isinstance(string, str):
+            return
         for char in string:
             Keyboard.send_key(char, hold_time)
 

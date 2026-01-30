@@ -187,3 +187,5 @@ pip install vosk
 wget https://alphacephei.com/vosk/models/vosk-model-small-pl-0.22.zip
 unzip vosk-model-small-pl-0.22.zip
 mv vosk-model-small-pl-0.22 model
+
+pdoc ./hid/output_manager.py -o ./docs

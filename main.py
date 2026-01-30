@@ -4,20 +4,23 @@ import sounddevice as sd
 from hid.keyboard import Keyboard
 from hid.output_manager import OutputManager
 from hid.keyboard_control import KeyboardControl
+from hid.speech_recognizer import SpeechRecognizer, GoogleSpeechRecognizer, VoskSpeechRecognizer
+
+DEBUG_MODE = True
 
 if __name__ == "__main__":
     output_manager = OutputManager()
-    bridge = KeyboardControl(output_manager=output_manager, debug_mode=True)
-    threading.Thread(target=output_manager.process_loop, daemon=True).start()
-    threading.Thread(target=bridge.start, daemon=True).start()
-    r = sr.Recognizer()
+    bridge = KeyboardControl(output_manager=output_manager, debug_mode=DEBUG_MODE)
+    threading.Thread(target=output_manager.process_loop, daemon=DEBUG_MODE).start()
+    threading.Thread(target=bridge.start, daemon=DEBUG_MODE).start()
+    google_speech_recognizer = GoogleSpeechRecognizer()
+    vosk_speech_recognizer = VoskSpeechRecognizer(model_path="model")
+    recognize = vosk_speech_recognizer  
     print("Inicializing microphone...")
     while True:
         try:
-            with sr.Microphone() as source:
-                r.adjust_for_ambient_noise(source, duration=0.5) 
-                audio = r.listen(source)
-                text = r.recognize_google(audio,language = "pl-PL") 
+            text = recognize.recognize_speech()
+            if text:
                 text = text.lower()
                 output_manager.msg_queue.put({
                     'type': 'SPEECH',
