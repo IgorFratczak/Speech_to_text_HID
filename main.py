@@ -9,7 +9,7 @@ from hid.speech_recognizer import GoogleSpeechRecognizer, VoskSpeechRecognizer
 from hid.hidra_server import run_hidra_server
 
 # Konfiguracja
-DEBUG_MODE = False
+DEBUG_MODE = True
 CONFIG_FILE = "config.json"
 
 # Zmienne globalne dla modeli
@@ -108,16 +108,14 @@ if __name__ == "__main__":
     
     while True:
         try:
-            # Główna pętla rozpoznawania
             text = recognize.recognize_speech()
             
             if text:
                 if DEBUG_MODE:
                     print(f"Odebrano tekst: {text}")
-                output_manager.msg_queue.put({'type': 'SPEECH', 'text': text.lower()})
+                output_manager.msg_queue.put({'type': 'SPEECH', 'text': text})
         
         except ConnectionError:
-            # Obsługa błędu wyrzuconego przez GoogleSpeechRecognizer przy braku sieci
             print("\n[!] Wykryto problem z siecią podczas pracy. Przełączam na VOSK...")
             change_model("VOSK")
             

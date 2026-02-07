@@ -17,24 +17,30 @@ class SpeechRecognizer(ABC):
 class GoogleSpeechRecognizer(SpeechRecognizer):
     def __init__(self):
         self.recognizer = sr.Recognizer()
-
+        self.recognizer.pause_threshold = 0.6 
+        self.recognizer.dynamic_energy_threshold = True
     def recognize_speech(self):
         try:
             with sr.Microphone() as source:
-                # Skróć czas adjust_for_ambient_noise, żeby szybciej reagował na zmiany
-                self.recognizer.adjust_for_ambient_noise(source, duration=0.3) 
-                audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=10)
-                
+                audio = self.recognizer.listen(source, timeout=5, phrase_time_limit=5)
                 text = self.recognizer.recognize_google(audio, language="pl-PL")
-                return text.lower()
+                if text.count(" ") >= 2:
+                    text = text[0].upper() + text[1:] + '.'
+                else:
+                    text = text[0].upper() + text[1:] if len(text) > 1 else text.upper()
+                text = text + " " if not text.endswith(" ") else text
+                
+                return text
+        except sr.WaitTimeoutError:
+            return None  
         except sr.UnknownValueError:
             return None
-        except (sr.RequestError, socket.timeout, socket.gaierror): # Obsługa braku sieci
+        except (sr.RequestError, socket.timeout, socket.gaierror):
             print(">>> BŁĄD SIECI: Google nie odpowiada.")
             raise ConnectionError("Brak internetu")
         except Exception as e:
             return None
-
+    
 class VoskSpeechRecognizer(SpeechRecognizer):
     def __init__(self, model_path="model"):
         from vosk import Model, KaldiRecognizer,SetLogLevel
