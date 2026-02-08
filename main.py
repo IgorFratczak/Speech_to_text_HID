@@ -3,127 +3,180 @@ import time
 import json
 import os
 import socket
+import sys
+import signal
+import gc
+import sounddevice as sd
 from hid.output_manager import OutputManager
 from hid.keyboard_control import KeyboardControl
 from hid.speech_recognizer import GoogleSpeechRecognizer, VoskSpeechRecognizer
 from hid.hidra_server import run_hidra_server
 
-# Konfiguracja
+# --- KONFIGURACJA ---
 DEBUG_MODE = True
 CONFIG_FILE = "config.json"
 
-# Zmienne globalne dla modeli
+# Zmienne globalne
 recognize = None
-google_speech_recognizer = None
-vosk_speech_recognizer = None
+is_active = False  
+running = True
+audio_lock = threading.Lock() # Blokada zapobiegająca konfliktom BLE vs Pętla Główna
 
-def check_internet():
-    """Sprawdza połączenie z internetem (ping do DNS Google)."""
+# Komendy sterujące
+START_COMMANDS = {"start", "startuj", "uruchom", "włącz"}
+STOP_COMMANDS = {"stop", "zatrzymaj", "wyłącz", "przestań"}
+
+# --- HANDLER DLA CTRL+C ---
+def signal_handler(sig, frame):
+    print("\n[!] Zamykanie systemu (Ctrl+C)...")
+    os._exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+# --- FUNKCJE POMOCNICZE ---
+def has_microphone():
+    """Sprawdza dostępność mikrofonu bez agresywnego restartu sterowników."""
     try:
-        socket.setdefaulttimeout(2)
-        # Próba połączenia z portem 53 (DNS) Google
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(("8.8.8.8", 53))
-        s.close()
-        return True
-    except Exception:
+        # Odświeżamy listę urządzeń tylko gdy to konieczne
+        devices = sd.query_devices()
+        return any(d['max_input_channels'] > 0 for d in devices)
+    except:
         return False
 
-def save_config(model_name):
-    """Zapisuje aktualny model do pliku."""
+def check_internet():
     try:
-        with open(CONFIG_FILE, "w") as f:
-            json.dump({"last_model": model_name}, f)
-    except Exception as e:
-        print(f"Błąd zapisu config: {e}")
+        socket.setdefaulttimeout(1)
+        socket.create_connection(("8.8.8.8", 53), timeout=1)
+        return True
+    except: return False
 
 def load_config():
-    """Wczytuje ostatnio używany model."""
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, "r") as f:
                 data = json.load(f)
-                return data.get("last_model", "VOSK")
-        except Exception:
-            return "VOSK"
+                return data.get("last_model", "VOSK").upper()
+        except: return "VOSK"
     return "VOSK"
 
-def change_model(name):
-    """Zmiana modelu z weryfikacją dostępności sieci."""
-    global recognize
-    name = name.upper().strip()
-    
-    if name == "GOOGLE":
-        if check_internet():
-            recognize = google_speech_recognizer
-            save_config("GOOGLE")
-            if DEBUG_MODE:
-                print(f"\n>>> AKTYWOWANO MODEL: GOOGLE (Online)")
-        else:
-            if DEBUG_MODE:
-                print("\n>>> BRAK INTERNETU: Automatyczne przełączenie na VOSK")
-            recognize = vosk_speech_recognizer
-            save_config("VOSK")
-    else:
-        recognize = vosk_speech_recognizer
-        save_config("VOSK")
-        if DEBUG_MODE:
-            print(f"\n>>> AKTYWOWANO MODEL: VOSK (Offline)")
+def save_config(model_name):
+    try:
+        with open(CONFIG_FILE, "w") as f:
+            json.dump({"last_model": model_name.upper()}, f)
+    except: pass
 
+def change_model(name):
+    """Zmienia model z użyciem blokady audio, aby nie zderzyć się z pętlą główną."""
+    global recognize
+    
+    with audio_lock:
+        name = name.upper().strip()
+        
+        # Test sprzętu przed próbą inicjalizacji
+        if not has_microphone():
+            print(f"\n[!] Nie można ustawić {name}: Brak mikrofonu!")
+            recognize = None
+            return
+
+        # Sprzątanie starego silnika
+        if recognize is not None:
+            recognize = None
+            gc.collect() 
+            time.sleep(0.3)
+
+        try:
+            if name == "GOOGLE":
+                if check_internet():
+                    recognize = GoogleSpeechRecognizer()
+                    save_config("GOOGLE")
+                    print("\n>>> AKTYWNY MODEL: GOOGLE")
+                else:
+                    print("\n[!] Brak sieci: Fallback na VOSK")
+                    name = "VOSK"
+
+            if name == "VOSK" or name != "GOOGLE":
+                recognize = VoskSpeechRecognizer(model_path="model")
+                save_config("VOSK")
+                print("\n>>> AKTYWNY MODEL: VOSK")
+                
+        except Exception as e:
+            print(f"\n[!] Błąd inicjalizacji {name}: {e}")
+            recognize = None
+
+# --- GŁÓWNA PĘTLA ---
 if __name__ == "__main__":
-    # Inicjalizacja managerów wyjścia i klawiatury
     output_manager = OutputManager()
     bridge = KeyboardControl(output_manager=output_manager, debug_mode=DEBUG_MODE)
     
-    # Inicjalizacja obu silników rozpoznawania
-    if DEBUG_MODE:
-        print("Inicjalizacja modeli mowy...")
-    google_speech_recognizer = GoogleSpeechRecognizer()
-    vosk_speech_recognizer = VoskSpeechRecognizer(model_path="model")
-    
-    # Wczytanie zapisanego stanu i ustawienie modelu na start
-    last_saved_model = load_config()
-    if DEBUG_MODE:
-        print(f"Ostatnio używany model: {last_saved_model}")
-    change_model(last_saved_model)
-    
-    # Uruchomienie wątków pomocniczych
+    # Start wątków (Bluetooth i Klawiatura)
     threading.Thread(target=output_manager.process_loop, daemon=True).start()
     threading.Thread(target=bridge.start, daemon=True).start()
-    
-    # Krótka pauza dla stabilizacji przed startem BLE
-    time.sleep(2)
-    
-    # Start serwera BLE (przekazujemy funkcję change_model jako callback)
     threading.Thread(
         target=run_hidra_server, 
         args=(DEBUG_MODE, change_model), 
         daemon=True
     ).start()
-    if DEBUG_MODE:
-        print("-" * 30)
-        print("SYSTEM HIDRA GOTOWY")
-        print("Nasłuchiwanie uruchomione. Czekam na komendy BLE...")
-        print("-" * 30)
+
+    # Start z modelu zapisanego w pliku
+    initial_model = load_config()
+    print(f"[*] Wczytuję z configu: {initial_model}")
+    change_model(initial_model)
     
-    while True:
+    print("-" * 40)
+    print(" SYSTEM HIDRA: ONLINE")
+    print("-" * 40)
+    
+    while running:
         try:
-            text = recognize.recognize_speech()
-            
-            if text:
-                if DEBUG_MODE:
-                    print(f"Odebrano tekst: {text}")
-                output_manager.msg_queue.put({'type': 'SPEECH', 'text': text})
-        
-        except ConnectionError:
-            print("\n[!] Wykryto problem z siecią podczas pracy. Przełączam na VOSK...")
-            change_model("VOSK")
-            
-        except KeyboardInterrupt:
-            print("\nZatrzymywanie przez użytkownika...")
-            break
-            
+            # 1. Zarządzanie stanem mikrofonu pod blokadą
+            with audio_lock:
+                mic_present = has_microphone()
+                
+                if not mic_present:
+                    if recognize is not None:
+                        print("\n[!] Mikrofon utracony!")
+                        recognize = None
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    time.sleep(2)
+                    continue
+
+                if mic_present and recognize is None:
+                    print("\n[+] Mikrofon powrócił! Inicjalizacja...")
+                    # Podnosimy to, co jest w configu
+                    current_cfg = load_config()
+                    # Wywołujemy bezpośrednio logikę bez podwójnej blokady
+                    if current_cfg == "GOOGLE" and check_internet():
+                        recognize = GoogleSpeechRecognizer()
+                    else:
+                        recognize = VoskSpeechRecognizer(model_path="model")
+                    print(f">>> Przywrócono: {current_cfg}")
+                    continue
+
+            # 2. Rozpoznawanie mowy (wyciągnięte poza Lock, by BLE mogło przerwać)
+            if recognize:
+                text = recognize.recognize_speech()
+                
+                if text:
+                    word = text.strip().lower()
+                    
+                    if word in START_COMMANDS:
+                        is_active = True
+                        print("\n>>> NASŁUCH: ON")
+                    elif word in STOP_COMMANDS:
+                        is_active = False
+                        print("\n>>> NASŁUCH: OFF")
+                    elif is_active:
+                        if DEBUG_MODE: print(f"Text: {text.strip()}")
+                        output_manager.msg_queue.put({'type': 'SPEECH', 'text': text})
+            else:
+                time.sleep(1)
+
         except Exception as e:
-            if DEBUG_MODE:
-                print(f"Błąd pętli głównej: {e}")
-            time.sleep(0.1)
+            # Obsługa nagłego błędu wejścia
+            if any(x in str(e).lower() for x in ["device", "input", "audio"]):
+                with audio_lock:
+                    recognize = None
+            elif DEBUG_MODE:
+                print(f"\nBłąd: {e}")
+            time.sleep(0.5)
