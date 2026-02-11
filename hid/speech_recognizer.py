@@ -27,6 +27,9 @@ class GoogleSpeechRecognizer(SpeechRecognizer):
                 # TIMEOUT=1 sprawia, że funkcja nie wisi w nieskończoność
                 audio = self.recognizer.listen(source, timeout=1, phrase_time_limit=5)
                 text = self.recognizer.recognize_google(audio, language="pl-PL")
+                if text:
+                    if text.count(' ') >= 1:
+                        text = text[0].upper() + text[1:] + "."
                 return text.strip() + " " if text else None
         except (sr.WaitTimeoutError, sr.UnknownValueError):
             return None  
