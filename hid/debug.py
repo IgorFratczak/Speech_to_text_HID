@@ -1,6 +1,6 @@
-DEBUG MODE = True
+DEBUG_MODE = True
 
 class Debug:
-   @staticmethod
+    @staticmethod
     def debug_status():
         return DEBUG_MODE

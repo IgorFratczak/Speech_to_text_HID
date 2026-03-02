@@ -7,7 +7,7 @@ from bless import (
     GATTCharacteristicProperties,
     GATTAttributePermissions
 )
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 SERVICE_UUID = "A1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
 CHAR_UUID    = "B1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
 

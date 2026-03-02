@@ -1,6 +1,6 @@
 import queue
 import time
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 from hid.keyboard import Keyboard
 
 class OutputManager:

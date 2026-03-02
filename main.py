@@ -12,9 +12,13 @@ from hid.output_manager import OutputManager
 from hid.keyboard_control import KeyboardControl
 from hid.speech_recognizer import GoogleSpeechRecognizer, VoskSpeechRecognizer
 from hid.hidra_server import run_hidra_server
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 DEBUG_MODE = DEBUG.debug_status()
 
+def debug_log(message):
+    if DEBUG_MODE:
+        print(f"[MAIN] {message}")
+        
 CONFIG_FILE = "config.json"
 
 # Zmienne globalne
@@ -24,9 +28,8 @@ running = True
 audio_lock = threading.Lock() 
 model_queue = queue.Queue() 
 
-def debug_log(message):
-    if DEBUG_MODE:
-        print(f"[MAIN] {message}")
+
+
 START_COMMANDS = {"start", "startuj", "uruchom", "włącz"}
 STOP_COMMANDS = {"stop", "zatrzymaj", "wyłącz", "przestań"}
 
@@ -41,8 +44,6 @@ def has_microphone():
     try:
         devices = sd.query_devices()
         mic_present = any(d['max_input_channels'] > 0 for d in devices)
-        if DEBUG_MODE:
-            debug_log(f"Sprawdzanie mikrofonu... {'Znaleziono' if mic_present else 'Nie znaleziono'}")
         return mic_present
 
     except:
@@ -52,7 +53,7 @@ def check_internet():
     try:
         socket.setdefaulttimeout(1)
         socket.create_connection(("8.8.8.8", 53), timeout=1)
-        self.debug_log("Połączenie z internetem: OK")
+        debug_log("Połączenie z internetem: OK")
         return True
     except: return False
 
@@ -125,7 +126,7 @@ if __name__ == "__main__":
     # BLE wrzuca do kolejki (model_queue.put)
     threading.Thread(
         target=run_hidra_server, 
-        args=(model_queue.put), 
+        args=(model_queue.put,), 
         daemon=True
     ).start()
 
@@ -150,8 +151,6 @@ if __name__ == "__main__":
                         debug_log("MIKROFON ODŁĄCZONY!")
                         if hasattr(recognize, 'close'): recognize.close()
                         recognize = None
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
                     time.sleep(2)
                     continue
 
@@ -185,11 +184,10 @@ if __name__ == "__main__":
                 time.sleep(0.5)
 
         except Exception as e:
+            debug_log(f"Nieoczekiwany błąd w głównej pętli: {e}")
             if any(x in str(e).lower() for x in ["device", "input", "audio", "stream"]):
                 debug_log(f"Błąd strumienia: {e}")
                 with audio_lock:
                     if recognize and hasattr(recognize, 'close'): recognize.close()
                     recognize = None
-            elif DEBUG_MODE:
-                debug_log(f"BŁĄD PĘTLI: {e}")
             time.sleep(1)

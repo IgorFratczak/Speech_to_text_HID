@@ -6,7 +6,7 @@ import hid.usb_pt as usb_pt
 from hid.keyboard import Keyboard
 from hid.device_listener import DeviceListener
 import time
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 DEVICE_PATH = '/dev/hidg0'
 
 class KeyboardControl:
@@ -49,8 +49,7 @@ class KeyboardControl:
     def _remove_listener(self, l):
         if l in self.listeners:
             self.listeners.remove(l)
-            if self.debug_mode:
-                self.debug_log(f"Usunięto urządzenie: {l.in_dev_path}. Aktywnych: {len(self.listeners)}")
+            self.debug_log(f"Usunięto urządzenie: {l.in_dev_path}. Aktywnych: {len(self.listeners)}")
 
     def _add_new_device(self, path):
         try:
@@ -72,8 +71,7 @@ class KeyboardControl:
                     self._on_change, 
                     self._remove_listener, 
                     usb_pt.EV_TO_HID, 
-                    usb_pt.EV_MODIFIERS,
-                    debug_mode=self.debug_mode
+                    usb_pt.EV_MODIFIERS
                 )
             
                 for led_code, state in self.current_host_led_states.items():

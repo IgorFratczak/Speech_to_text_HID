@@ -7,7 +7,7 @@ import speech_recognition as sr
 from abc import ABC, abstractmethod
 import socket
 from vosk import Model, KaldiRecognizer, SetLogLevel
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 class SpeechRecognizer(ABC):
     @abstractmethod
     def __init__(self):
@@ -30,7 +30,7 @@ class GoogleSpeechRecognizer(SpeechRecognizer):
                 audio = self.recognizer.listen(source, timeout=1, phrase_time_limit=7)
                 text = self.recognizer.recognize_google(audio, language="pl-PL")
                 if text:
-                    debug_log(f"Rozpoznany tekst: {text}")
+                    self.debug_log(f"Rozpoznany tekst: {text}")
                     if text.count(' ') >= 1:
                         text = text[0].upper() + text[1:] + "."
                     self.debug_log(f"Przetworzony tekst: {text}")
@@ -38,10 +38,10 @@ class GoogleSpeechRecognizer(SpeechRecognizer):
         except (sr.WaitTimeoutError, sr.UnknownValueError):
             return None  
         except (sr.RequestError, socket.timeout, socket.gaierror):
-            debug_log("Brak połączenia z internetem. Google Speech Recognition wymaga dostępu do sieci.")
+            self.debug_log("Brak połączenia z internetem. Google Speech Recognition wymaga dostępu do sieci.")
             raise ConnectionError("Brak internetu")
         except Exception:
-            debug_log("Nieoczekiwany błąd podczas rozpoznawania mowy Google: " + str(sys.exc_info()[0]))
+            self.debug_log("Nieoczekiwany błąd podczas rozpoznawania mowy Google: " + str(sys.exc_info()[0]))
             raise RuntimeError("Błąd sprzętowy mikrofonu")
     
 class VoskSpeechRecognizer(SpeechRecognizer):

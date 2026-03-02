@@ -2,7 +2,7 @@ import threading
 import traceback
 from evdev import InputDevice, ecodes, list_devices
 import hid.usb_pt as usb_pt
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 class DeviceListener:
     def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers):
         self.in_dev_path = in_dev_path
@@ -96,6 +96,7 @@ class DeviceListener:
     def _trigger_callback(self):
         current_state = (set(self.active_keys), self.active_modifiers)
         if current_state != self.last_state:
+            self.debug_log(f"Klawisze: {current_state[0]}, Modyfikatory: {current_state[1]}")
             try:
                 self.on_change_callback(list(current_state[0]), current_state[1])
                 self.last_state = current_state

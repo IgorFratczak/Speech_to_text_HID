@@ -2,7 +2,7 @@ from .keyboard_keys import *
 import time
 from evdev import InputDevice, ecodes
 DEVICE_PATH = "/dev/hidg0"
-import Debug from hid.debug as DEBUG
+from hid.debug import Debug as DEBUG
 try :
     keyboard_path = open(DEVICE_PATH, "wb", buffering=0)
 except PermissionError:
