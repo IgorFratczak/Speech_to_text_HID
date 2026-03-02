@@ -1,16 +1,20 @@
 from .keyboard_keys import *
 import time
 from evdev import InputDevice, ecodes
-KEYBOARD_DEVICE_OUT = "/dev/hidg1"
-
+DEVICE_PATH = "/dev/hidg0"
+import Debug from hid.debug as DEBUG
 try :
-    keyboard_path = open(KEYBOARD_DEVICE_OUT, "wb", buffering=0)
+    keyboard_path = open(DEVICE_PATH, "wb", buffering=0)
 except PermissionError:
-    print("You need to run this script with elevated permissions (e.g., using sudo).")
+    if DEBUG.debug_status():
+        print("[KEYBOARD] Potrzebne są uprawnienia do zapisu do urządzenia HID. Uruchom program z odpowiednimi uprawnieniami.")
 except FileNotFoundError:
-    print("HID keyboard device not found. Make sure the HID module is properly configured.")
+    print("[KEYBOARD] Urządzenie HID nie zostało znalezione. Upewnij się, że moduł HID jest poprawnie skonfigurowany.")
 
 class Keyboard:
+    @staticmethod
+    def send_report(report):
+        keyboard_path.write(report)
     @staticmethod
     def send_event(modifier, keycode, hold_time = 0.01):
         report = bytearray(8)
@@ -45,9 +49,7 @@ class Keyboard:
     def release_keys():
         Keyboard.send_report(bytearray(8))
     
-    @staticmethod
-    def send_report(report):
-        keyboard_path.write(report)
+
     @staticmethod
     def send_env_keys(modifier, keycodes, hold_time = 0.01):
         report = bytearray(8)

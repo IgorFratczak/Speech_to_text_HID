@@ -6,20 +6,21 @@ import hid.usb_pt as usb_pt
 from hid.keyboard import Keyboard
 from hid.device_listener import DeviceListener
 import time
-
-OUTPUT_DEV_PATH = '/dev/hidg1'
+import Debug from hid.debug as DEBUG
+DEVICE_PATH = '/dev/hidg0'
 
 class KeyboardControl:
-    def __init__(self, output_manager=None, debug_mode=False):
+    def __init__(self, output_manager=None):
         self.output_manager = output_manager
-        self.debug_mode = debug_mode
         self.listeners = []
         self.current_host_led_states = {
             ecodes.LED_NUML: False,
             ecodes.LED_CAPSL: False,
             ecodes.LED_SCROLLL: False
         }
-
+    def debug_log(self, message):
+        if DEBUG.debug_status():
+            print(f"[KEYBOARD CONTROL] {message}")
     def start(self): 
         Keyboard.release_keys()
 
@@ -29,8 +30,7 @@ class KeyboardControl:
         for path in DeviceListener.list_all_keyboard_devices():
             self._add_new_device(path)
 
-        if self.debug_mode:
-            print("System zdarzeniowy uruchomiony. Czekam na sygnały...")
+        self.debug_log("System zdarzeniowy uruchomiony. Czekam na sygnały...")
         try:
             signal.pause()
         except KeyboardInterrupt:
@@ -50,7 +50,7 @@ class KeyboardControl:
         if l in self.listeners:
             self.listeners.remove(l)
             if self.debug_mode:
-                print(f"[-] Usunięto: {l.in_dev_path}. Aktywnych: {len(self.listeners)}")
+                self.debug_log(f"Usunięto urządzenie: {l.in_dev_path}. Aktywnych: {len(self.listeners)}")
 
     def _add_new_device(self, path):
         try:
@@ -81,10 +81,10 @@ class KeyboardControl:
             
                 threading.Thread(target=l.listen_loop, daemon=True).start()
                 self.listeners.append(l)
-                if self.debug_mode:
-                    print(f"[+] Dodano klawiaturę: {path}")
+          
+                self.debug_log(f"Dodano klawiaturę: {path}")
             except Exception as e:
-                print(f"Błąd inicjalizacji urządzenia: {e}")
+                self.debug_log(f"Błąd inicjalizacji urządzenia: {e}")
         except Exception:
             pass
 
@@ -99,7 +99,7 @@ class KeyboardControl:
     def _sync_leds_from_host(self):
         last_raw_state = None
         try:
-            with open(OUTPUT_DEV_PATH, 'rb', buffering=0) as f:
+            with open(DEVICE_PATH, 'rb', buffering=0) as f:
                 initial_report = f.read(8)
                 if initial_report:
                     raw_leds = initial_report[0]
@@ -130,4 +130,4 @@ class KeyboardControl:
                                     time.sleep(0.005)
                             last_raw_state = raw_leds
         except Exception as e:
-            print(f"Błąd sync LED: {e}")
+            self.debug_log(f"Błąd sync LED: {e}")

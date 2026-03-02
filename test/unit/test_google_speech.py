@@ -15,7 +15,7 @@ def cpu_monitor():
                 temp = int(f.read()) / 1000.0
         except:
             temp = 0.0
-        print(f"[MONITOR] CPU: {cpu_usage}% | Temp: {temp:.1f}°C", end='\r')
+        print(f"[MONITOR] CPU: {cpu_usage}% | Temperatura: {temp:.1f}°C", end='\r')
         time.sleep(1)
 
 

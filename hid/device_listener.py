@@ -2,15 +2,15 @@ import threading
 import traceback
 from evdev import InputDevice, ecodes, list_devices
 import hid.usb_pt as usb_pt
-
+import Debug from hid.debug as DEBUG
 class DeviceListener:
-    def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers, debug_mode=False):
+    def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers):
         self.in_dev_path = in_dev_path
         self.on_change_callback = on_change_callback
         self.on_disconnect_callback = on_disconnect_callback
         self.ev_to_hid = ev_to_hid
         self.ev_modifiers = ev_modifiers
-        self.debug_mode = debug_mode
+
         
         self.active_keys = set()
         self.active_modifiers = 0
@@ -23,11 +23,13 @@ class DeviceListener:
         self.num_lock_active = False    
         self.scroll_lock_active = False 
         self._sync_initial_leds()
+    def debug_log(self, message):
+        if DEBUG.debug_status():
+            print(f"[DEVICE LISTENER] {message}")
 
     def _sync_initial_leds(self):
         try:
             leds = self.dev.leds()
-            # ecodes: LED_NUML=0, LED_CAPSL=1, LED_SCROLLL=2
             self.num_lock_active = 0 in leds
             self.caps_lock_active = 1 in leds
             self.scroll_lock_active = 2 in leds
@@ -66,13 +68,12 @@ class DeviceListener:
                 self.dev.write(ecodes.EV_LED, led_code, 1 if value else 0)
                 self.dev.syn() 
             except Exception as e:
-                print(f"Błąd zapisu LED: {e}")
+                self.debug_log(f"Błąd aktualizacji LED: {e}")
 
     def listen_loop(self):
         self.running = True
         self.grab_device()
-        if self.debug_mode:
-            print(f"[OK] Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
+        self.debug_log(f"Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
         
         try:
             for event in self.dev.read_loop():
@@ -84,14 +85,12 @@ class DeviceListener:
                         self._trigger_callback()
 
         except Exception as e:
-            if self.debug_mode:
-                print(f"\n[!] Błąd pętli nasłuchu dla {self.in_dev_path}: {e}")
+            self.debug_log(f"Wykryto odłączenie urządzenia: {e}")
         
         finally:
             self.running = False
             self.release_device()
-            if self.debug_mode:
-                print(f"[*] Zatrzymano nasłuch: {self.in_dev_path}")
+            self.debug_log(f"Zakończono nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
             if self.on_disconnect_callback:
                 self.on_disconnect_callback(self)
     def _trigger_callback(self):
@@ -101,9 +100,8 @@ class DeviceListener:
                 self.on_change_callback(list(current_state[0]), current_state[1])
                 self.last_state = current_state
             except Exception as e:
-                if self.debug_mode:
-                    print(f"[DEBUG] Błąd w callbacku: {e}")
-
+                self.debug_log(f"Błąd w callbacku: {e}")
+               
     @staticmethod
     def list_all_keyboard_devices():
         keyboards = {}
