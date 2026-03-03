@@ -8,20 +8,28 @@ from hid.device_listener import DeviceListener
 import time
 from hid.debug import Debug as DEBUG
 DEVICE_PATH = '/dev/hidg0'
+""" Ścieżka do urządzenia HID, z którego odczytywane są stany LED z hosta. """
 
 class KeyboardControl:
+    """Klasa odpowiedzialna za monitorowanie klawiatury, synchronizację stanu LED z hostem i wysyłanie zdarzeń klawiszy do hosta lub menedżera wyjścia."""
     def __init__(self, output_manager=None):
+        """Inicjalizuje kontroler klawiatury, opcjonalnie z menedżerem wyjścia do wysyłania zdarzeń klawiszy."""
         self.output_manager = output_manager
+        """Lista aktywnych listenerów dla klawiatury."""
         self.listeners = []
+        """Słownik przechowujący aktualne stany LED z hosta, aby uniknąć niepotrzebnych aktualizacji."""
         self.current_host_led_states = {
             ecodes.LED_NUML: False,
             ecodes.LED_CAPSL: False,
             ecodes.LED_SCROLLL: False
         }
+        """Zwalnia wszystkie klawisze przy starcie, aby uniknąć zablokowanych klawiszy po restarcie."""
     def debug_log(self, message):
+        """Wyświetla komunikat debugowy, jeśli debugowanie jest włączone."""
         if DEBUG.debug_status():
             print(f"[KEYBOARD CONTROL] {message}")
     def start(self): 
+        """Uruchamia system zdarzeniowy, monitoruje klawiatury i synchronizuje stany LED z hostem."""
         Keyboard.release_keys()
 
         threading.Thread(target=self._sync_leds_from_host, daemon=True).start()
@@ -37,6 +45,7 @@ class KeyboardControl:
             Keyboard.release_keys()
 
     def _on_change(self, keys, modifiers):
+        """Obsługuje zdarzenia zmiany stanu klawiszy i wysyła je do hosta lub menedżera wyjścia."""
         if self.output_manager:
             self.output_manager.msg_queue.put({
                 'type': 'PHYSICAL',
@@ -47,11 +56,13 @@ class KeyboardControl:
             Keyboard.send_env_keys(modifiers, list(keys))
 
     def _remove_listener(self, l):
+        """Usuwa listener z listy, gdy urządzenie jest odłączane."""
         if l in self.listeners:
             self.listeners.remove(l)
             self.debug_log(f"Usunięto urządzenie: {l.in_dev_path}. Aktywnych: {len(self.listeners)}")
 
     def _add_new_device(self, path):
+        """Dodaje nową klawiaturę, jeśli jest nią urządzenie wejściowe i nie jest już monitorowane."""
         try:
             if any(l.in_dev_path == path for l in self.listeners): return
 
@@ -87,6 +98,7 @@ class KeyboardControl:
             pass
 
     def _hotplug_monitor(self):
+        """Monitoruje zdarzenia hotplug dla urządzeń wejściowych i dodaje nowe klawiatury."""
         context = pyudev.Context()
         monitor = pyudev.Monitor.from_netlink(context)
         monitor.filter_by(subsystem='input')
@@ -95,6 +107,7 @@ class KeyboardControl:
                 threading.Timer(0.5, self._add_new_device, args=[device.get('DEVNAME')]).start()
 
     def _sync_leds_from_host(self):
+        """Odczytuje stan LED z hosta i aktualizuje go w listenerach."""
         last_raw_state = None
         try:
             with open(DEVICE_PATH, 'rb', buffering=0) as f:

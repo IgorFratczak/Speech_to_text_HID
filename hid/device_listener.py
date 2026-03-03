@@ -4,30 +4,46 @@ from evdev import InputDevice, ecodes, list_devices
 import hid.usb_pt as usb_pt
 from hid.debug import Debug as DEBUG
 class DeviceListener:
+    """ Klasa odpowiedzialna za nasłuchiwanie zdarzeń z urządzeń wejściowych (klawiatur) i przekazywanie ich do systemu HID. """
     def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers):
+        """Inicjalizuje DeviceListener dla danego urządzenia wejściowego."""
         self.in_dev_path = in_dev_path
+        """Ścieżka do urządzenia wejściowego (np. /dev/input/eventX)."""
         self.on_change_callback = on_change_callback
+        """Funkcja callback wywoływana przy zmianie stanu klawiszy."""
         self.on_disconnect_callback = on_disconnect_callback
+        """Funkcja callback wywoływana przy odłączeniu urządzenia."""
         self.ev_to_hid = ev_to_hid
+        """Mapowanie kodów evdev na kody HID."""
         self.ev_modifiers = ev_modifiers
-
+        """Mapowanie kodów evdev na modyfikatory HID."""
         
         self.active_keys = set()
+        """Zbiór aktualnie wciśniętych klawiszy (kodów HID)."""
         self.active_modifiers = 0
+        """Maska bitowa aktualnie aktywnych modyfikatorów."""
         self.last_state = (set(), 0)
-        
+        """Ostatni stan klawiszy i modyfikatorów, używany do wykrywania zmian."""
         self.dev = InputDevice(self.in_dev_path)
+        """Obiekt reprezentujący urządzenie wejściowe do nasłuchiwania."""
         self.running = False
+        """Flaga kontrolująca działanie pętli nasłuchiwania."""
         self.lock = threading.Lock()
+        """Blokada do synchronizacji dostępu do urządzenia i stanu."""
         self.caps_lock_active = False
-        self.num_lock_active = False    
-        self.scroll_lock_active = False 
+        """Flaga stanu Caps Lock."""
+        self.num_lock_active = False
+        """Flaga stanu Num Lock."""    
+        self.scroll_lock_active = False
+        """Flaga stanu Scroll Lock.""" 
         self._sync_initial_leds()
     def debug_log(self, message):
+        """Wypisuje komunikat diagnostyczny, jeśli tryb DEBUG jest aktywny."""
         if DEBUG.debug_status():
             print(f"[DEVICE LISTENER] {message}")
 
     def _sync_initial_leds(self):
+        """Synchronizuje początkowy stan diod LED (Num Lock, Caps Lock, Scroll Lock) z urządzeniem."""
         try:
             leds = self.dev.leds()
             self.num_lock_active = 0 in leds
@@ -39,16 +55,19 @@ class DeviceListener:
             self.scroll_lock_active = False
 
     def grab_device(self):
+        """Odłącza urządzenie od systemu, aby móc je kontrolować bez zakłóceń."""
         with self.lock:
             try: self.dev.grab()
             except: pass
 
     def release_device(self):
+        """Ponownie udostępnia urządzenie systemowi, przywracając jego normalne działanie."""
         with self.lock:
             try: self.dev.ungrab()
             except: pass
 
     def _update_state(self, key_code, value):
+        """Aktualizuje stan klawiszy i modyfikatorów na podstawie zdarzenia z urządzenia."""
         if key_code in self.ev_modifiers:
             mod_val = self.ev_modifiers[key_code]
             if value >= 1: self.active_modifiers |= mod_val
@@ -63,6 +82,7 @@ class DeviceListener:
         return False
 
     def update_led_safe(self, led_code, value):
+        """Bezpiecznie aktualizuje stan diody LED na urządzeniu, obsługując potencjalne błędy."""
         with self.lock: 
             try:
                 self.dev.write(ecodes.EV_LED, led_code, 1 if value else 0)
@@ -71,6 +91,7 @@ class DeviceListener:
                 self.debug_log(f"Błąd aktualizacji LED: {e}")
 
     def listen_loop(self):
+        """Główna pętla nasłuchiwania zdarzeń z urządzenia. Przetwarza zdarzenia klawiszy i modyfikatorów, wywołując odpowiednie callbacki."""
         self.running = True
         self.grab_device()
         self.debug_log(f"Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
@@ -94,6 +115,7 @@ class DeviceListener:
             if self.on_disconnect_callback:
                 self.on_disconnect_callback(self)
     def _trigger_callback(self):
+        """Sprawdza aktualny stan klawiszy i modyfikatorów, porównuje z ostatnim stanem i wywołuje callback, jeśli nastąpiła zmiana."""
         current_state = (set(self.active_keys), self.active_modifiers)
         if current_state != self.last_state:
             self.debug_log(f"Klawisze: {current_state[0]}, Modyfikatory: {current_state[1]}")
@@ -105,6 +127,7 @@ class DeviceListener:
                
     @staticmethod
     def list_all_keyboard_devices():
+        """Zwraca słownik wszystkich urządzeń wejściowych typu klawiatura, dostępnych w systemie."""
         keyboards = {}
         for path in list_devices():
             try:
@@ -116,6 +139,7 @@ class DeviceListener:
         return keyboards
     @staticmethod
     def list_all_input_devices():
+        """Zwraca słownik wszystkich urządzeń wejściowych, niezależnie od typu."""
         devices = {}
         for path in list_devices():
             try:

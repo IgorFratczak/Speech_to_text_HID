@@ -1,3 +1,4 @@
+""" Kody klawiszy w standardzie USB HID. """
 KEY_A = 0x04
 KEY_B = 0x05
 KEY_C = 0x06
@@ -242,3 +243,4 @@ KEY_MAP = {
     '+': [LEFT_SHIFT,KEY_EQUAL],
     '_': [LEFT_SHIFT,KEY_MINUS],
 }
+""" Znaki ASCII i ich odpowiedniki w kodach klawiszy USB HID. """

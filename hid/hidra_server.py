@@ -9,14 +9,21 @@ from bless import (
 )
 from hid.debug import Debug as DEBUG
 SERVICE_UUID = "A1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
+"""UUID usługi BLE, która będzie używana do udostępniania konfiguracji modelu i danych WiFi dla projektu."""
 CHAR_UUID    = "B1B2C3D4-E5F6-4890-81D2-13B4C5D6E7F8"
+"""UUID charakterystyki BLE, która będzie używana do odbierania danych konfiguracyjnych (model i WiFi) dla projektu."""
 
 class HidraConfigServer:
+    """Serwer BLE do odbierania konfiguracji modelu i danych WiFi dla projektu."""
     def __init__(self):
+        """Inicjalizacja serwera BLE i ustawienie początkowych wartości."""
         self.server = BlessServer(name="Hidra")
+        """Callback do obsługi zmiany modelu, który będzie ustawiony podczas startu serwera."""
         self.on_model_change_callback = None
+        """Flaga debugowania, która może być używana do włączania/wyłączania logowania debugowego."""
 
     def debug_log(self, message):
+        """Logowanie debugowe z czasem i oznaczeniem [BLE]."""
         if DEBUG.debug_status():
             print(f"[BLE][{time.strftime('%H:%M:%S')}]  {message}", flush=True)
 

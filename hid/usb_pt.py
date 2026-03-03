@@ -1,5 +1,5 @@
+"""Moduł zawierający mapowanie klawiszy evdev na kody klawiszy HID oraz funkcje pomocnicze do obsługi klawiszy i modyfikatorów."""
 import hid.keyboard_keys as keys
-
 EV_KEY_A = 30
 EV_KEY_B = 48
 EV_KEY_C = 46
@@ -135,7 +135,7 @@ EV_MODIFIERS = {
     MOD_LEFT_GUI: keys.LEFT_GUI,
     MOD_RIGHT_GUI: keys.RIGHT_GUI
 }
-
+""" Mapowanie modyfikatorów evdev na kody modyfikatorów HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""
 EV_TO_HID = {
     EV_KEY_A: keys.KEY_A,
     EV_KEY_B: keys.KEY_B,
@@ -237,3 +237,4 @@ EV_TO_HID = {
     EV_KEYPAD_RIGHT_PAREN: keys.KEYPAD_RIGHT_PAREN,
     EV_KEYPAD_BACKSPACE: keys.KEYPAD_BACKSPACE
 }
+"""Mapowanie klawiszy evdev na kody klawiszy HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""

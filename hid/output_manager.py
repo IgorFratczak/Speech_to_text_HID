@@ -5,17 +5,26 @@ from hid.keyboard import Keyboard
 
 class OutputManager:
     """
-    Dokumentacja klasy OutputManager:
+    Zarządza kolejkowaniem i wysyłaniem danych wyjściowych do interfejsu HID.
+    Obsługuje zarówno fizyczne naciśnięcia klawiszy, jak i tekst z mowy.
     """
     def __init__(self):
         """Inicjalizuje OutputManager z pustą kolejką zadań."""
         self.msg_queue = queue.Queue()
+        """Kolejka zadań typu FIFO przechowująca instrukcje dla klawiatury."""
         self.active_physical_keys = []
+        """Lista aktualnie wciśniętych klawiszy fizycznych."""
         self.active_physical_modifiers = 0
+        """Maska bitowa aktywnych modyfikatorów (Ctrl, Shift, Alt)."""
     def debug_log(self, message):
+        """Wypisuje komunikat diagnostyczny, jeśli tryb DEBUG jest aktywny."""
         if DEBUG.debug_status():
             print(f"[OUTPUT MANAGER] {message}")
     def process_loop(self):
+        """
+        Główna pętla przetwarzająca zadania z kolejki `msg_queue`.
+        Rozróżnia typy zadań 'PHYSICAL' oraz 'SPEECH'.
+        """
         while True:
             task = self.msg_queue.get()
             
