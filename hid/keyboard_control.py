@@ -31,7 +31,7 @@ class KeyboardControl:
     def start(self): 
         """Uruchamia system zdarzeniowy, monitoruje klawiatury i synchronizuje stany LED z hostem."""
         Keyboard.release_keys()
-
+        
         threading.Thread(target=self._sync_leds_from_host, daemon=True).start()
         threading.Thread(target=self._hotplug_monitor, daemon=True).start()
         
@@ -90,7 +90,6 @@ class KeyboardControl:
             
                 threading.Thread(target=l.listen_loop, daemon=True).start()
                 self.listeners.append(l)
-          
                 self.debug_log(f"Dodano klawiaturę: {path}")
             except Exception as e:
                 self.debug_log(f"Błąd inicjalizacji urządzenia: {e}")

@@ -3,6 +3,7 @@ import traceback
 from evdev import InputDevice, ecodes, list_devices
 import hid.usb_pt as usb_pt
 from hid.debug import Debug as DEBUG
+import time
 class DeviceListener:
     """ Klasa odpowiedzialna za nasłuchiwanie zdarzeń z urządzeń wejściowych (klawiatur) i przekazywanie ich do systemu HID. """
     def __init__(self, in_dev_path, on_change_callback, on_disconnect_callback, ev_to_hid, ev_modifiers):
@@ -36,7 +37,7 @@ class DeviceListener:
         """Flaga stanu Num Lock."""    
         self.scroll_lock_active = False
         """Flaga stanu Scroll Lock.""" 
-        self._sync_initial_leds()
+        
     def debug_log(self, message):
         """Wypisuje komunikat diagnostyczny, jeśli tryb DEBUG jest aktywny."""
         if DEBUG.debug_status():
@@ -53,7 +54,6 @@ class DeviceListener:
             self.num_lock_active = False
             self.caps_lock_active = False
             self.scroll_lock_active = False
-
     def grab_device(self):
         """Odłącza urządzenie od systemu, aby móc je kontrolować bez zakłóceń."""
         with self.lock:
@@ -83,6 +83,7 @@ class DeviceListener:
 
     def update_led_safe(self, led_code, value):
         """Bezpiecznie aktualizuje stan diody LED na urządzeniu, obsługując potencjalne błędy."""
+        self.debug_log(f"Aktualizacja LED {led_code} na {'ON' if value else 'OFF'}")
         with self.lock: 
             try:
                 self.dev.write(ecodes.EV_LED, led_code, 1 if value else 0)
@@ -95,7 +96,8 @@ class DeviceListener:
         self.running = True
         self.grab_device()
         self.debug_log(f"Rozpoczęto nasłuch urządzenia: {self.dev.name} ({self.in_dev_path})")
-        
+        time.sleep(0.1)  
+        self._sync_initial_leds() 
         try:
             for event in self.dev.read_loop():
                 if not self.running:
