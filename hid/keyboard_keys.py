@@ -1,0 +1,247 @@
+""" Kody klawiszy w standardzie USB HID. """
+KEY_A = 0x04
+KEY_B = 0x05
+KEY_C = 0x06
+KEY_D = 0x07
+KEY_E = 0x08
+KEY_F = 0x09
+KEY_G = 0x0A
+KEY_H = 0x0B
+KEY_I = 0x0C
+KEY_J = 0x0D
+KEY_K = 0x0E
+KEY_L = 0x0F
+KEY_M = 0x10
+KEY_N = 0x11
+KEY_O = 0x12
+KEY_P = 0x13
+KEY_Q = 0x14
+KEY_R = 0x15
+KEY_S = 0x16
+KEY_T = 0x17
+KEY_U = 0x18
+KEY_V = 0x19
+KEY_W = 0x1A
+KEY_X = 0x1B
+KEY_Y = 0x1C
+KEY_Z = 0x1D
+
+KEY_1 = 0x1E
+KEY_2 = 0x1F
+KEY_3 = 0x20
+KEY_4 = 0x21
+KEY_5 = 0x22
+KEY_6 = 0x23
+KEY_7 = 0x24
+KEY_8 = 0x25
+KEY_9 = 0x26
+KEY_0 = 0x27
+
+KEY_MINUS = 0x2D
+KEY_EQUAL = 0x2E
+KEY_LEFT_BRACKET = 0x2F
+KEY_RIGHT_BRACKET = 0x30
+KEY_BACKSLASH = 0x31
+KEY_SEMICOLON = 0x33
+KEY_APOSTROPHE = 0x34
+KEY_GRAVE = 0x35
+KEY_COMMA = 0x36
+KEY_DOT = 0x37
+KEY_SLASH = 0x38
+KEY_ENTER = 0x28
+KEY_SPACE = 0x2C
+KEY_BACKSPACE = 0x2A
+KEY_TAB = 0x2B
+KEY_ESC = 0x29
+
+KEY_LEFT_CTRL = 0xE0
+KEY_RIGHT_CTRL = 0xE4
+KEY_LEFT_SHIFT = 0xE1
+KEY_RIGHT_SHIFT = 0xE5
+KEY_LEFT_ALT = 0xE2
+KEY_RIGHT_ALT = 0xE6
+KEY_LEFT_GUI = 0xE3
+KEY_RIGHT_GUI = 0xE7
+
+KEY_F1 = 0x3A
+KEY_F2 = 0x3B
+KEY_F3 = 0x3C
+KEY_F4 = 0x3D
+KEY_F5 = 0x3E
+KEY_F6 = 0x3F
+KEY_F7 = 0x40
+KEY_F8 = 0x41
+KEY_F9 = 0x42
+KEY_F10 = 0x43
+KEY_F11 = 0x44
+KEY_F12 = 0x45
+
+KEY_UP_ARROW = 0x52
+KEY_DOWN_ARROW = 0x51
+KEY_LEFT_ARROW = 0x50
+KEY_RIGHT_ARROW = 0x4F
+
+KEY_DELETE = 0x4C
+KEY_HOME = 0x4A
+KEY_END = 0x4D
+KEY_PAGE_UP = 0x4B
+KEY_PAGE_DOWN = 0x4E
+KEY_CAPS_LOCK = 0x39
+KEY_PRINT_SCREEN = 0x46
+KEY_SCROLL_LOCK = 0x47
+KEY_PAUSE = 0x48
+KEY_INSERT = 0x49
+KEY_NUM_LOCK = 0x53
+
+KEYPAD_0 = 0x62
+KEYPAD_1 = 0x59
+KEYPAD_2 = 0x5A
+KEYPAD_3 = 0x5B
+KEYPAD_4 = 0x5C
+KEYPAD_5 = 0x5D
+KEYPAD_6 = 0x5E
+KEYPAD_7 = 0x5F
+KEYPAD_8 = 0x60
+KEYPAD_9 = 0x61
+KEYPAD_ENTER = 0x58
+KEYPAD_PLUS = 0x57
+KEYPAD_MINUS = 0x56
+KEYPAD_ASTERISK = 0x55
+KEYPAD_SLASH = 0x54
+KEYPAD_DOT = 0x63
+KEYPAD_COMMA = 0x85
+KEYPAD_EQUAL = 0x67
+KEYPAD_LEFT_PAREN = 0xB6
+KEYPAD_RIGHT_PAREN = 0xB7
+KEYPAD_BACKSPACE = 0x64
+KEYPAD_CLEAR = 0x65
+KEYPAD_CLEARENTRY = 0xB5
+KEYPAD_DASH = 0x89
+KEYPAD_SLASH2 = 0xB4
+KEYPAD_ENTER2 = 0xB8
+
+NONE = 0x00
+LEFT_CTRL = 0x01
+LEFT_SHIFT = 0x02
+LEFT_ALT = 0x04
+LEFT_GUI = 0x08
+RIGHT_CTRL = 0x10
+RIGHT_SHIFT = 0x20
+RIGHT_ALT = 0x40
+RIGHT_GUI = 0x80
+CAPS_LOCK = 0x39
+
+
+KEY_MAP = {
+    'a': [NONE,KEY_A],
+    'b': [NONE,KEY_B],
+    'c': [NONE,KEY_C],
+    'd': [NONE,KEY_D],
+    'e': [NONE,KEY_E],
+    'f': [NONE,KEY_F],
+    'g': [NONE,KEY_G],
+    'h': [NONE,KEY_H],
+    'i': [NONE,KEY_I],
+    'j': [NONE,KEY_J],
+    'k': [NONE,KEY_K],
+    'l': [NONE,KEY_L],
+    'm': [NONE,KEY_M],
+    'n': [NONE,KEY_N],
+    'o': [NONE,KEY_O],
+    'p': [NONE,KEY_P],
+    'q': [NONE,KEY_Q],
+    'r': [NONE,KEY_R],
+    's': [NONE,KEY_S],
+    't': [NONE,KEY_T],
+    'u': [NONE,KEY_U],
+    'v': [NONE,KEY_V],
+    'w': [NONE,KEY_W],
+    'x': [NONE,KEY_X],
+    'y': [NONE,KEY_Y],
+    'z': [NONE,KEY_Z],
+    'A': [LEFT_SHIFT,KEY_A],
+    'B': [LEFT_SHIFT,KEY_B],
+    'C': [LEFT_SHIFT,KEY_C],
+    'D': [LEFT_SHIFT,KEY_D],
+    'E': [LEFT_SHIFT,KEY_E],
+    'F': [LEFT_SHIFT,KEY_F],
+    'G': [LEFT_SHIFT,KEY_G],
+    'H': [LEFT_SHIFT,KEY_H],
+    'I': [LEFT_SHIFT,KEY_I],
+    'J': [LEFT_SHIFT,KEY_J],
+    'K': [LEFT_SHIFT,KEY_K],
+    'L': [LEFT_SHIFT,KEY_L],
+    'M': [LEFT_SHIFT,KEY_M],
+    'N': [LEFT_SHIFT,KEY_N],
+    'O': [LEFT_SHIFT,KEY_O],
+    'P': [LEFT_SHIFT,KEY_P],
+    'Q': [LEFT_SHIFT,KEY_Q],
+    'R': [LEFT_SHIFT,KEY_R],
+    'S': [LEFT_SHIFT,KEY_S],
+    'T': [LEFT_SHIFT,KEY_T],
+    'U': [LEFT_SHIFT,KEY_U],
+    'V': [LEFT_SHIFT,KEY_V],
+    'W': [LEFT_SHIFT,KEY_W],
+    'X': [LEFT_SHIFT,KEY_X],
+    'Y': [LEFT_SHIFT,KEY_Y],
+    'Z': [LEFT_SHIFT,KEY_Z],
+    'ą': [RIGHT_ALT,KEY_A],
+    'ć': [RIGHT_ALT,KEY_C],
+    'ę': [RIGHT_ALT,KEY_E],
+    'ł': [RIGHT_ALT,KEY_L],
+    'ń': [RIGHT_ALT,KEY_N],
+    'ó': [RIGHT_ALT,KEY_O],
+    'ś': [RIGHT_ALT,KEY_S],
+    'ż': [RIGHT_ALT,KEY_Z],
+    'ź': [RIGHT_ALT,KEY_X],
+    'Ą': [RIGHT_ALT | LEFT_SHIFT,KEY_A],
+    'Ć': [RIGHT_ALT | LEFT_SHIFT,KEY_C],
+    'Ę': [RIGHT_ALT | LEFT_SHIFT,KEY_E],
+    'Ł': [RIGHT_ALT | LEFT_SHIFT,KEY_L],
+    'Ń': [RIGHT_ALT | LEFT_SHIFT,KEY_N],
+    'Ó': [RIGHT_ALT | LEFT_SHIFT,KEY_O],
+    'Ś': [RIGHT_ALT | LEFT_SHIFT,KEY_S],
+    'Ż': [RIGHT_ALT | LEFT_SHIFT,KEY_Z],
+    'Ź': [RIGHT_ALT | LEFT_SHIFT,KEY_X],
+    ' ': [NONE,KEY_SPACE],
+    '\n': [NONE,KEY_ENTER],
+    '\t': [NONE,KEY_TAB],
+    '1': [NONE,KEY_1],
+    '2': [NONE,KEY_2],
+    '3': [NONE,KEY_3],
+    '4': [NONE,KEY_4],
+    '5': [NONE,KEY_5],
+    '6': [NONE,KEY_6],
+    '7': [NONE,KEY_7],
+    '8': [NONE,KEY_8],
+    '9': [NONE,KEY_9],
+    '0': [NONE,KEY_0],
+    '-': [NONE,KEY_MINUS],
+    '=': [NONE,KEY_EQUAL],
+    '[': [NONE,KEY_LEFT_BRACKET],
+    ']': [NONE,KEY_RIGHT_BRACKET],
+    '\\': [NONE,KEY_BACKSLASH],
+    ';': [NONE,KEY_SEMICOLON],
+    '\'': [NONE,KEY_APOSTROPHE],
+    '`': [NONE,KEY_GRAVE],
+    ',': [NONE,KEY_COMMA],
+    '?': [LEFT_SHIFT,KEY_SLASH],
+    '.': [NONE,KEY_DOT],
+    '/': [NONE,KEY_SLASH],
+    ':': [LEFT_SHIFT,KEY_SEMICOLON],
+    '"': [LEFT_SHIFT,KEY_APOSTROPHE],
+    '~': [LEFT_SHIFT,KEY_GRAVE],
+    '!': [LEFT_SHIFT,KEY_1],
+    '@': [LEFT_SHIFT,KEY_2],
+    '#': [LEFT_SHIFT,KEY_3],
+    '$': [LEFT_SHIFT,KEY_4],
+    '%': [LEFT_SHIFT,KEY_5],
+    '^': [LEFT_SHIFT,KEY_6],
+    '&': [LEFT_SHIFT,KEY_7],
+    '*': [LEFT_SHIFT,KEY_8],
+    '(': [LEFT_SHIFT,KEY_9],
+    ')': [LEFT_SHIFT,KEY_0],
+    '+': [LEFT_SHIFT,KEY_EQUAL],
+    '_': [LEFT_SHIFT,KEY_MINUS],
+}
+""" Znaki ASCII i ich odpowiedniki w kodach klawiszy USB HID. """

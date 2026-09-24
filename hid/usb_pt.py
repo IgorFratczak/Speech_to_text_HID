@@ -1,0 +1,240 @@
+"""Moduł zawierający mapowanie klawiszy evdev na kody klawiszy HID oraz funkcje pomocnicze do obsługi klawiszy i modyfikatorów."""
+import hid.keyboard_keys as keys
+EV_KEY_A = 30
+EV_KEY_B = 48
+EV_KEY_C = 46
+EV_KEY_D = 32
+EV_KEY_E = 18
+EV_KEY_F = 33
+EV_KEY_G = 34
+EV_KEY_H = 35
+EV_KEY_I = 23
+EV_KEY_J = 36
+EV_KEY_K = 37
+EV_KEY_L = 38
+EV_KEY_M = 50
+EV_KEY_N = 49
+EV_KEY_O = 24
+EV_KEY_P = 25
+EV_KEY_Q = 16
+EV_KEY_R = 19
+EV_KEY_S = 31
+EV_KEY_T = 20
+EV_KEY_U = 22
+EV_KEY_V = 47
+EV_KEY_W = 17
+EV_KEY_X = 45
+EV_KEY_Y = 21
+EV_KEY_Z = 44
+EV_KEY_1 = 2
+EV_KEY_2 = 3
+EV_KEY_3 = 4
+EV_KEY_4 = 5
+EV_KEY_5 = 6
+EV_KEY_6 = 7
+EV_KEY_7 = 8
+EV_KEY_8 = 9
+EV_KEY_9 = 10
+EV_KEY_0 = 11
+
+EV_KEY_MINUS = 12
+EV_KEY_EQUAL = 13
+EV_KEY_LEFT_BRACKET = 26
+EV_KEY_RIGHT_BRACKET = 27
+EV_KEY_BACKSLASH = 43 # '\'
+EV_KEY_SEMICOLON = 39 # ';'
+EV_KEY_APOSTROPHE = 40 # ' ' '
+EV_KEY_GRAVE = 41 # '`'
+EV_KEY_COMMA = 51 # ','
+EV_KEY_DOT = 52 # '.'
+EV_KEY_SLASH = 53 # '/'
+
+EV_KEY_F1 = 59
+EV_KEY_F2 = 60
+EV_KEY_F3 = 61
+EV_KEY_F4 = 62
+EV_KEY_F5 = 63
+EV_KEY_F6 = 64
+EV_KEY_F7 = 65
+EV_KEY_F8 = 66
+EV_KEY_F9 = 67
+EV_KEY_F10 = 68
+EV_KEY_F11 = 87
+EV_KEY_F12 = 88
+
+EV_SPACE = 57
+EV_TAB = 15
+EV_ENTER = 28
+EV_BACKSPACE = 14
+EV_CAPS_LOCK = 58
+EV_RIGHT_GUI = 126
+EV_LEFT_GUI = 125
+
+EV_KEY_UP = 103
+EV_KEY_DOWN = 108
+EV_KEY_LEFT = 105
+EV_KEY_RIGHT = 106
+
+EV_KEY_DELETE = 111
+EV_KEY_HOME = 102
+EV_KEY_END = 107
+EV_KEY_PAGE_UP = 104
+EV_KEY_PAGE_DOWN = 109
+EV_KEY_PRINT_SCREEN = 99
+EV_KEY_SCROLL_LOCK = 70
+EV_KEY_PAUSE = 119
+EV_KEY_INSERT = 110
+EV_KEY_NUM_LOCK = 69
+
+EV_KEYPAD_0 = 82
+EV_KEYPAD_1 = 79
+EV_KEYPAD_2 = 80
+EV_KEYPAD_3 = 81
+EV_KEYPAD_4 = 75
+EV_KEYPAD_5 = 76
+EV_KEYPAD_6 = 77
+EV_KEYPAD_7 = 71
+EV_KEYPAD_8 = 72
+EV_KEYPAD_9 = 73
+EV_KEYPAD_ENTER = 96
+EV_KEYPAD_PLUS = 78
+EV_KEYPAD_MINUS = 74
+EV_KEYPAD_ASTERISK = 55
+EV_KEYPAD_SLASH = 98
+EV_KEYPAD_DOT = 83
+EV_KEYPAD_COMMA = 85
+EV_KEYPAD_EQUAL = 86
+EV_KEYPAD_LEFT_PAREN = 0xB6
+EV_KEYPAD_RIGHT_PAREN = 0xB7
+EV_KEYPAD_BACKSPACE = 0x64
+EV_KEYPAD_CLEAR = 0x65
+EV_KEYPAD_CLEARENTRY = 0xB5
+EV_KEYPAD_DASH = 0x89
+EV_KEYPAD_SLASH2 = 0xB4
+EV_KEYPAD_ENTER2 = 0xB8
+
+
+
+MOD_RIGHT_ALT = 100
+MOD_RIGHT_SHIFT = 54
+MOD_RIGHT_CTRL = 97
+MOD_LEFT_SHIFT = 42
+MOD_LEFT_CTRL = 29
+MOD_LEFT_ALT = 56
+MOD_LEFT_GUI = 125
+MOD_RIGHT_GUI = 126
+
+
+EV_MODIFIERS = {
+    MOD_LEFT_SHIFT: keys.LEFT_SHIFT,
+    MOD_RIGHT_SHIFT: keys.RIGHT_SHIFT,
+    MOD_LEFT_CTRL: keys.LEFT_CTRL,
+    MOD_RIGHT_CTRL: keys.RIGHT_CTRL,
+    MOD_LEFT_ALT: keys.LEFT_ALT,
+    MOD_RIGHT_ALT: keys.RIGHT_ALT,
+    MOD_LEFT_GUI: keys.LEFT_GUI,
+    MOD_RIGHT_GUI: keys.RIGHT_GUI
+}
+""" Mapowanie modyfikatorów evdev na kody modyfikatorów HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""
+EV_TO_HID = {
+    EV_KEY_A: keys.KEY_A,
+    EV_KEY_B: keys.KEY_B,
+    EV_KEY_C: keys.KEY_C,
+    EV_KEY_D: keys.KEY_D,
+    EV_KEY_E: keys.KEY_E,
+    EV_KEY_F: keys.KEY_F,
+    EV_KEY_G: keys.KEY_G,
+    EV_KEY_H: keys.KEY_H,
+    EV_KEY_I: keys.KEY_I,
+    EV_KEY_J: keys.KEY_J,
+    EV_KEY_K: keys.KEY_K,
+    EV_KEY_L: keys.KEY_L,
+    EV_KEY_M: keys.KEY_M,
+    EV_KEY_N: keys.KEY_N,
+    EV_KEY_O: keys.KEY_O,
+    EV_KEY_P: keys.KEY_P,
+    EV_KEY_Q: keys.KEY_Q,
+    EV_KEY_R: keys.KEY_R,
+    EV_KEY_S: keys.KEY_S,
+    EV_KEY_T: keys.KEY_T,
+    EV_KEY_U: keys.KEY_U,
+    EV_KEY_V: keys.KEY_V,
+    EV_KEY_W: keys.KEY_W,
+    EV_KEY_X: keys.KEY_X,
+    EV_KEY_Y: keys.KEY_Y,
+    EV_KEY_Z: keys.KEY_Z,
+    EV_KEY_1: keys.KEY_1,
+    EV_KEY_2: keys.KEY_2,
+    EV_KEY_3: keys.KEY_3,
+    EV_KEY_4: keys.KEY_4,
+    EV_KEY_5: keys.KEY_5,
+    EV_KEY_6: keys.KEY_6,
+    EV_KEY_7: keys.KEY_7,
+    EV_KEY_8: keys.KEY_8,
+    EV_KEY_9: keys.KEY_9,
+    EV_KEY_0: keys.KEY_0,
+    EV_SPACE: keys.KEY_SPACE,
+    EV_TAB: keys.KEY_TAB,
+    EV_ENTER: keys.KEY_ENTER,
+    EV_BACKSPACE: keys.KEY_BACKSPACE,
+    EV_CAPS_LOCK: keys.CAPS_LOCK,
+    EV_KEY_MINUS: keys.KEY_MINUS,
+    EV_KEY_EQUAL: keys.KEY_EQUAL,
+    EV_KEY_LEFT_BRACKET: keys.KEY_LEFT_BRACKET,
+    EV_KEY_RIGHT_BRACKET: keys.KEY_RIGHT_BRACKET,
+    EV_KEY_BACKSLASH: keys.KEY_BACKSLASH,
+    EV_KEY_SEMICOLON: keys.KEY_SEMICOLON,
+    EV_KEY_APOSTROPHE: keys.KEY_APOSTROPHE,
+    EV_KEY_GRAVE: keys.KEY_GRAVE,
+    EV_KEY_COMMA: keys.KEY_COMMA,
+    EV_KEY_DOT: keys.KEY_DOT,
+    EV_KEY_SLASH: keys.KEY_SLASH,
+    EV_KEY_F1: keys.KEY_F1,
+    EV_KEY_F2: keys.KEY_F2,
+    EV_KEY_F3: keys.KEY_F3,
+    EV_KEY_F4: keys.KEY_F4,
+    EV_KEY_F5: keys.KEY_F5,
+    EV_KEY_F6: keys.KEY_F6,
+    EV_KEY_F7: keys.KEY_F7,
+    EV_KEY_F8: keys.KEY_F8,
+    EV_KEY_F9: keys.KEY_F9,
+    EV_KEY_F10: keys.KEY_F10,
+    EV_KEY_F11: keys.KEY_F11,
+    EV_KEY_F12: keys.KEY_F12,
+    EV_KEY_UP: keys.KEY_UP_ARROW,
+    EV_KEY_DOWN: keys.KEY_DOWN_ARROW,
+    EV_KEY_LEFT: keys.KEY_LEFT_ARROW,
+    EV_KEY_RIGHT: keys.KEY_RIGHT_ARROW,
+    EV_KEY_DELETE: keys.KEY_DELETE,
+    EV_KEY_HOME: keys.KEY_HOME,
+    EV_KEY_END: keys.KEY_END,
+    EV_KEY_PAGE_UP: keys.KEY_PAGE_UP,
+    EV_KEY_PAGE_DOWN: keys.KEY_PAGE_DOWN,
+    EV_KEY_PRINT_SCREEN: keys.KEY_PRINT_SCREEN,
+    EV_KEY_SCROLL_LOCK: keys.KEY_SCROLL_LOCK,
+    EV_KEY_PAUSE: keys.KEY_PAUSE,
+    EV_KEY_INSERT: keys.KEY_INSERT,
+    EV_KEY_NUM_LOCK: keys.KEY_NUM_LOCK,
+    EV_KEYPAD_0: keys.KEYPAD_0,
+    EV_KEYPAD_1: keys.KEYPAD_1,
+    EV_KEYPAD_2: keys.KEYPAD_2,
+    EV_KEYPAD_3: keys.KEYPAD_3,
+    EV_KEYPAD_4: keys.KEYPAD_4,
+    EV_KEYPAD_5: keys.KEYPAD_5,
+    EV_KEYPAD_6: keys.KEYPAD_6,
+    EV_KEYPAD_7: keys.KEYPAD_7,
+    EV_KEYPAD_8: keys.KEYPAD_8,
+    EV_KEYPAD_9: keys.KEYPAD_9,
+    EV_KEYPAD_ENTER: keys.KEYPAD_ENTER,
+    EV_KEYPAD_PLUS: keys.KEYPAD_PLUS,
+    EV_KEYPAD_MINUS: keys.KEYPAD_MINUS,
+    EV_KEYPAD_ASTERISK: keys.KEYPAD_ASTERISK,
+    EV_KEYPAD_SLASH: keys.KEYPAD_SLASH,
+    EV_KEYPAD_DOT: keys.KEYPAD_DOT,
+    EV_KEYPAD_COMMA: keys.KEYPAD_COMMA,
+    EV_KEYPAD_EQUAL: keys.KEYPAD_EQUAL,
+    EV_KEYPAD_LEFT_PAREN: keys.KEYPAD_LEFT_PAREN,
+    EV_KEYPAD_RIGHT_PAREN: keys.KEYPAD_RIGHT_PAREN,
+    EV_KEYPAD_BACKSPACE: keys.KEYPAD_BACKSPACE
+}
+"""Mapowanie klawiszy evdev na kody klawiszy HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""
