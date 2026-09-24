@@ -9,7 +9,7 @@ from vosk import Model, KaldiRecognizer
 import sounddevice as sd
 from hid.keyboard import Keyboard
 from hid.speech_recognizer import VoskSpeechRecognizer
-
+""" Testowanie Vosk Speech Recognition API z nagraniem dźwięku z mikrofonu. """
 
 def cpu_monitor():
     while True:

@@ -401,7 +401,7 @@
 
                         <label class="view-source-button" for="mod-usb_pt-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">&quot;&quot;&quot;Moduł zawierający mapowanie klawiszy evdev na kody klawiszy HID oraz funkcje pomocnicze do obsługi klawiszy i modyfikatorów.&quot;&quot;&quot;</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">"""Moduł zawierający mapowanie klawiszy evdev na kody klawiszy HID oraz funkcje pomocnicze do obsługi klawiszy i modyfikatorów."""</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">hid.keyboard_keys</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">keys</span>
 </span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="n">EV_KEY_A</span> <span class="o">=</span> <span class="mi">30</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a><span class="n">EV_KEY_B</span> <span class="o">=</span> <span class="mi">48</span>
@@ -444,13 +444,13 @@
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="n">EV_KEY_EQUAL</span> <span class="o">=</span> <span class="mi">13</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="n">EV_KEY_LEFT_BRACKET</span> <span class="o">=</span> <span class="mi">26</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="n">EV_KEY_RIGHT_BRACKET</span> <span class="o">=</span> <span class="mi">27</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="n">EV_KEY_BACKSLASH</span> <span class="o">=</span> <span class="mi">43</span> <span class="c1"># &#39;\&#39;</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="n">EV_KEY_SEMICOLON</span> <span class="o">=</span> <span class="mi">39</span> <span class="c1"># &#39;;&#39;</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="n">EV_KEY_APOSTROPHE</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1"># &#39; &#39; &#39;</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="n">EV_KEY_GRAVE</span> <span class="o">=</span> <span class="mi">41</span> <span class="c1"># &#39;`&#39;</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="n">EV_KEY_COMMA</span> <span class="o">=</span> <span class="mi">51</span> <span class="c1"># &#39;,&#39;</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="n">EV_KEY_DOT</span> <span class="o">=</span> <span class="mi">52</span> <span class="c1"># &#39;.&#39;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="n">EV_KEY_SLASH</span> <span class="o">=</span> <span class="mi">53</span> <span class="c1"># &#39;/&#39;</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="n">EV_KEY_BACKSLASH</span> <span class="o">=</span> <span class="mi">43</span> <span class="c1"># '\'</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="n">EV_KEY_SEMICOLON</span> <span class="o">=</span> <span class="mi">39</span> <span class="c1"># ';'</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="n">EV_KEY_APOSTROPHE</span> <span class="o">=</span> <span class="mi">40</span> <span class="c1"># ' ' '</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="n">EV_KEY_GRAVE</span> <span class="o">=</span> <span class="mi">41</span> <span class="c1"># '`'</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="n">EV_KEY_COMMA</span> <span class="o">=</span> <span class="mi">51</span> <span class="c1"># ','</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="n">EV_KEY_DOT</span> <span class="o">=</span> <span class="mi">52</span> <span class="c1"># '.'</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="n">EV_KEY_SLASH</span> <span class="o">=</span> <span class="mi">53</span> <span class="c1"># '/'</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="n">EV_KEY_F1</span> <span class="o">=</span> <span class="mi">59</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="n">EV_KEY_F2</span> <span class="o">=</span> <span class="mi">60</span>
@@ -538,7 +538,7 @@
 </span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="n">MOD_LEFT_GUI</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">LEFT_GUI</span><span class="p">,</span>
 </span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a>    <span class="n">MOD_RIGHT_GUI</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">RIGHT_GUI</span>
 </span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="p">}</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">&quot;&quot;&quot; Mapowanie modyfikatorów evdev na kody modyfikatorów HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID.&quot;&quot;&quot;</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">""" Mapowanie modyfikatorów evdev na kody modyfikatorów HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""</span>
 </span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="n">EV_TO_HID</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>    <span class="n">EV_KEY_A</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">KEY_A</span><span class="p">,</span>
 </span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>    <span class="n">EV_KEY_B</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">KEY_B</span><span class="p">,</span>
@@ -640,7 +640,7 @@
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="n">EV_KEYPAD_RIGHT_PAREN</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">KEYPAD_RIGHT_PAREN</span><span class="p">,</span>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>    <span class="n">EV_KEYPAD_BACKSPACE</span><span class="p">:</span> <span class="n">keys</span><span class="o">.</span><span class="n">KEYPAD_BACKSPACE</span>
 </span><span id="L-239"><a href="#L-239"><span class="linenos">239</span></a><span class="p">}</span>
-</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">&quot;&quot;&quot;Mapowanie klawiszy evdev na kody klawiszy HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID.&quot;&quot;&quot;</span>
+</span><span id="L-240"><a href="#L-240"><span class="linenos">240</span></a><span class="sd">"""Mapowanie klawiszy evdev na kody klawiszy HID. Ta mapa jest używana do konwersji zdarzeń klawiatury z evdev na odpowiednie raporty HID, które mogą być wysyłane do urządzenia HID."""</span>
 </span></pre></div>
 
 

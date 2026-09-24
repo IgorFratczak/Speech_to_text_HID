@@ -77,8 +77,8 @@ Poniższa procedura opisuje proces przekształcenia Raspberry Pi w urządzenie t
 
 Na końcu pliku dodaj:
 
-    dtoverlay=dwc2`
-    nano /boot/firmware/config.txt
+    dtoverlay=dwc2
+
 
 Zakomentuj następujące linie (dodaj `#` na początku każdej z nich):
 
@@ -180,7 +180,7 @@ Po pomyślnej konfiguracji deskryptorów USB, należy przeprowadzić walidację 
 
 W celu uzyskania dostępu do projektu, sklonuj repozytorium projektu:
 
-    git clone https://github.com/IgorFratczak/Speach_to_text_HID.git
+    git clone https://github.com/IgorFratczak/Speech_to_text_HID.git
     cd Speech_to_text_HID
 
 ### Uruchomienie testów diagnostycznych
@@ -221,6 +221,7 @@ Poniższe kroki są niezbędne do prawidłowego przygotowania środowiska urucho
     rm vosk-model-small-pl-0.22.zip
     sudo apt install portaudio19-dev
     ./venv/bin/pip install pyaudio
+    sudo apt install -y flac
 
 Po poprawnym zainstalowaniu bibliotek, aplikacje można uruchomić za pomocą komendy:
 
@@ -318,7 +319,3 @@ Aby sprawdzić, jakie procesy Python są aktualnie uruchomione w systemie i jaki
 ```
 ps aux | grep python
 ```
-
-
-
-

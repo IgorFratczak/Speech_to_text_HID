@@ -115,7 +115,6 @@ def change_model(name):
             debug_log(f"Błąd inicjalizacji {name}: {e}")
             recognize = None
 
-# --- START SYSTEMU ---
 if __name__ == "__main__":
     output_manager = OutputManager()
     bridge = KeyboardControl(output_manager=output_manager)
@@ -123,7 +122,6 @@ if __name__ == "__main__":
     threading.Thread(target=output_manager.process_loop, daemon=True).start()
     threading.Thread(target=bridge.start, daemon=True).start()
     
-    # BLE wrzuca do kolejki (model_queue.put)
     threading.Thread(
         target=run_hidra_server, 
         args=(model_queue.put,), 
@@ -159,7 +157,6 @@ if __name__ == "__main__":
                     change_model(load_config())
                     continue
 
-            # 3. TWOJA LOGIKA ROZPOZNAWANIA I KOMEND
             if recognize:
                 text = recognize.recognize_speech()
                 
@@ -169,8 +166,6 @@ if __name__ == "__main__":
                     
                     if DEBUG_MODE:
                         debug_log(f"Słyszę: {clean_text} | Nasłuch: {'ON' if is_active else 'OFF'}")
-
-                    # TWOJE ORYGINALNE WARUNKI
                     if any(cmd in word for cmd in START_COMMANDS):
                         is_active = True
                         debug_log(">>> NASŁUCH: ON")

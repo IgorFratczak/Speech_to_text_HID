@@ -2,7 +2,7 @@
 import time
 from hid.keyboard import Keyboard
 
-
+"""Testuje funkcjonalność klawiatury HID."""
 def test_keyboard():
     print("Masz 5 sekund na skoncentrowanie się na polu tekstowym...")
     time.sleep(5)  

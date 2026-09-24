@@ -7,6 +7,9 @@ from hid.keyboard import Keyboard
 from hid.speech_recognizer import GoogleSpeechRecognizer
 from contextlib import contextmanager
 import sys
+
+"""Testy rozpoznawania mowy z użyciem Google Speech-to-Text API w czasie rzeczywistym bez automatycznego logowania wyników do pliku CSV. Wypisywanie wyników na ekran i wysyłanie ich do aktywnego okna jako symulacja klawiatury."""
+
 def cpu_monitor():
     while True:
         cpu_usage = psutil.cpu_percent(interval=None)

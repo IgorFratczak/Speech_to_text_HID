@@ -225,6 +225,7 @@ KEY_MAP = {
     '\'': [NONE,KEY_APOSTROPHE],
     '`': [NONE,KEY_GRAVE],
     ',': [NONE,KEY_COMMA],
+    '?': [LEFT_SHIFT,KEY_SLASH],
     '.': [NONE,KEY_DOT],
     '/': [NONE,KEY_SLASH],
     ':': [LEFT_SHIFT,KEY_SEMICOLON],
